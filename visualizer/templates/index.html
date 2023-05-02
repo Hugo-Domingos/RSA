@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Map</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css"
+     integrity="sha256-kLaT2GOSpHechhsozzB+flnD+zUyjE2LlfWPgU04xyI="
+     crossorigin=""/>
+     <!-- Make sure you put this AFTER Leaflet's CSS -->
+     <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"
+     integrity="sha256-WBkoXOwTeyKclOHuWtc+i2uENFpDZ9YPdf5Hf+D7ewM="
+     crossorigin=""></script>
+     <style>
+        #mapid { height: 500px; }
+    </style>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
+</head>
+<body>
+    <div id="mapid"></div>
+    <script>
+        // initialize the map on the "map" div with a given center and zoom
+        var mymap = L.map('mapid').setView([40.63260789120826, -8.655074423121608], 17);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors',
+            maxZoom: 18,
+        }).addTo(mymap);
+        var carIcon = L.icon({
+            iconUrl: 'static/car.png',
+
+            iconSize:     [30, 30], // size of the icon
+        });
+        var ambulanceIcon = L.icon({
+            iconUrl: 'static/ambulance.png',
+
+            iconSize:     [30, 30], // size of the icon
+        });
+        var antennaIcon = L.icon({
+            iconUrl: 'static/antena.png',
+
+            iconSize:     [30, 30], // size of the icon
+        });
+
+        var rsu_1 = L.marker([40.6334546665471, -8.654870575236478], {icon: antennaIcon}).addTo(mymap);
+        var rsu_2 = L.marker([40.632412479977084, -8.65541774587554], {icon: antennaIcon}).addTo(mymap);
+
+        var car_1 = L.marker([0, 0], {icon: ambulanceIcon}).addTo(mymap);
+        var car_2 = L.marker([0, 0], {icon: carIcon}).addTo(mymap);
+
+        setInterval(updateMarker, "{{refresh_rate}}");
+
+        function updateMarker() {
+            console.log("aqui");
+            $.getJSON('/state',function (json) {
+                console.log(json);
+                car_1.setLatLng([json['obu1'].latitude, json['obu1'].longitude]).update();
+                car_2.setLatLng([json['obu2'].latitude, json['obu2'].longitude]).update();
+            });
+        }
+
+        function kill_sim() {
+            $.get('kill_simulation')
+        }
+
+    </script>
+</body>
+</html>
+
