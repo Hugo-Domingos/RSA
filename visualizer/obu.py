@@ -27,6 +27,8 @@ class OBU:
         self.coords = self.get_next_coords()
         self.special_vehicle = special_vehicle
         # self.road_network = road_network
+        print(f'Best distance path: {self.best_distance_path(5)}')
+        self.best_path = self.best_distance_path(5)
 
     def start(self):
         client = mqtt.Client(self.name)
@@ -41,11 +43,10 @@ class OBU:
             print(f'IN -> OBU: {self.name} | MSG: {cam_message}\n')
 
             if self.is_on_node():
-                self.change_edge()
+                self.change_edge('global')
             if self.finished:
                 break
             self.coords = self.get_next_coords()
-            print(f'Coords: {self.coords}')
             time.sleep(1)
         
         # end the client
@@ -53,8 +54,6 @@ class OBU:
         client.disconnect()
     
     def get_next_coords(self):
-        print(self.current_edge)
-        print( self.graph.get_edge_data(*self.current_edge)['attr']['list_of_coordinates'] )
         if self.coords == None:
             aux = list(self.graph.get_edge_data(*self.current_edge)['attr']['list_of_coordinates'])[0]
             return aux
@@ -66,23 +65,20 @@ class OBU:
             return True
         return False
 
-    def change_edge(self):
+    def change_edge(self, type_of_search):
         if len(list(self.graph.successors(self.current_edge[1]))) == 0:
             self.finished = True
             return
-        successor_id = self.get_successor_min_distance()
-        print(f'Successor id: {successor_id}')
-        self.current_edge = (self.current_edge[1], successor_id)
+        if type_of_search == 'local':
+            successor_id = self.get_successor_min_distance()
+            self.current_edge = (self.current_edge[1], successor_id)
+        elif type_of_search == 'global':
+            successor_id = self.best_path[self.best_path.index(self.current_edge[1]) + 1]
+            self.current_edge = (self.current_edge[1], successor_id)
         self.coords = None
-        # successors = list(self.graph.successors(self.current_edge[1]))
-        # print(f'Successors: {successors}')
-        # self.current_edge = (self.current_edge[1], successors[-1])
-        # print(f'Current edge: {self.current_edge}')
-        # self.coords = None
 
     def get_successor_min_distance(self):
         successors = list(self.graph.successors(self.current_edge[1]))
-        print(f'Successors: {successors}')
         min_distance = self.graph.get_edge_data(self.current_edge[1], successors[0])['attr']['distance']
         min_distance_successor = successors[0]
         for successor in successors:
@@ -90,6 +86,10 @@ class OBU:
                 min_distance = self.graph.get_edge_data(self.current_edge[1], successor)['attr']['distance']
                 min_distance_successor = successor
         return min_distance_successor
+
+    # gets the best path based on the distance atribute of the edges
+    def best_distance_path(self, destination_node):
+        return nx.dijkstra_path(self.graph, self.current_edge[1], destination_node, weight='distance')
 
     def on_message(self, client, userdata, msg):
         pass
