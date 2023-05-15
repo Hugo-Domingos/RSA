@@ -6,7 +6,7 @@ class Navigation:
     def __init__(self):
         self.route1 = Route('coordinates/street1.csv')
         self.route2 = Route('coordinates/street2.csv')
-        self.intersection12 = Intersection([40.63325278264807,-8.655772891406016], [self.route1, self.route2])
+        self.intersection12 = Intersection([40.63327000463087,-8.655562538048118], [self.route1, self.route2])
 
     def iterate_over_route(self, route, current_coords):
         self.get_next_coords(route, current_coords)

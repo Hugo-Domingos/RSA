@@ -18,6 +18,8 @@
 </head>
 <body>
     <div id="mapid"></div>
+    <button onclick="startSimulation()">Start Simulation</button>
+    <button onclick="stopSimulation()">Stop Simulation</button>
     <script>
         // initialize the map on the "map" div with a given center and zoom
         var mymap = L.map('mapid').setView([40.63260789120826, -8.655074423121608], 17);
@@ -45,22 +47,41 @@
         var rsu_2 = L.marker([40.632412479977084, -8.65541774587554], {icon: antennaIcon}).addTo(mymap);
 
         var car_1 = L.marker([0, 0], {icon: ambulanceIcon}).addTo(mymap);
-        var car_2 = L.marker([0, 0], {icon: carIcon}).addTo(mymap);
+        // var car_2 = L.marker([0, 0], {icon: carIcon}).addTo(mymap);
 
-        setInterval(updateMarker, "{{refresh_rate}}");
+        var simulationRunning = false;
+        var updateInterval;
+
+        function startSimulation() {
+            if (!simulationRunning) {
+                simulationRunning = true;
+                $.post('/start_simulation')
+                updateInterval = setInterval(updateMarker, "{{refresh_rate}}");
+            }
+        }
+
+        function stopSimulation() {
+            if (simulationRunning) {
+                simulationRunning = false;
+                clearInterval(updateInterval);
+                $.post('/kill_simulation')
+            }
+        }
+
+        // setInterval(updateMarker, "{{refresh_rate}}");
 
         function updateMarker() {
             console.log("aqui");
             $.getJSON('/state',function (json) {
                 console.log(json);
                 car_1.setLatLng([json['obu1'].latitude, json['obu1'].longitude]).update();
-                car_2.setLatLng([json['obu2'].latitude, json['obu2'].longitude]).update();
+                // car_2.setLatLng([json['obu2'].latitude, json['obu2'].longitude]).update();
             });
         }
 
-        function kill_sim() {
-            $.get('kill_simulation')
-        }
+        // function kill_sim() {
+        //     $.post('/kill_simulation')
+        // }
 
     </script>
 </body>

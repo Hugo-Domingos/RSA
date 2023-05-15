@@ -5,7 +5,7 @@ import cam
 import json
 
 class RSU:
-    def __init__(self, name, id, address, rsu, route, coords):
+    def __init__(self, name, id, address, rsu, coords):
         self.name = name
         self.id = id
         self.address = address
@@ -13,7 +13,7 @@ class RSU:
         self.finished = False
         self.length = 4.5
         self.width = 1.8
-        self.route = route
+        # self.route = route
         self.coords = coords
 
         #to be removed
@@ -31,6 +31,11 @@ class RSU:
             # self.send_message('vanetza/in/cam', cam_message)
             # print(f'IN -> RSU: {self.name} | MSG: {cam_message}\n')
             time.sleep(1)
+        
+        # end the client
+        client.loop_stop()
+        client.disconnect()
+        
 
     def on_message(self, client, userdata, msg):
         message = json.loads(msg.payload.decode('utf-8'))

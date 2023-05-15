@@ -4,12 +4,11 @@ class Route:
     def __init__(self, filename):
         self.filename = filename
         self.coords_list = []
-        # read csv file with header "latitude,longitude" and return a list of coordinates
-        # ignore the first line of the file
-        with open(self.filename, newline='') as csvfile:
-            reader = csv.DictReader(csvfile)
-            for row in reader:
-                self.coords_list.append([float(row['latitude']), float(row['longitude'])])
+        with open(filename, 'r') as f:
+            for line in f:
+                self.coords_list.append(line.strip().split(','))
+                self.coords_list[-1][0] = float(self.coords_list[-1][0])
+                self.coords_list[-1][1] = float(self.coords_list[-1][1])
         print(self.coords_list)
 
     def get_coords(self):
