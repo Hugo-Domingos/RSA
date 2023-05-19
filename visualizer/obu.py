@@ -3,6 +3,7 @@ import paho.mqtt.client as mqtt
 import paho.mqtt.publish as publish
 import time
 import cam
+import denm
 from navigation import Navigation
 import networkx as nx
 
@@ -34,6 +35,7 @@ class OBU:
         client = mqtt.Client(self.name)
         client.on_message = self.on_message
         client.connect(self.address, 1883, 60)
+        client.subscribe(topic=[("vanetza/out/denm", 0)])
         client.subscribe(topic=[("vanetza/out/cam", 0)])
         client.loop_start()
 
@@ -41,7 +43,11 @@ class OBU:
             cam_message = self.generate_cam()
             self.send_message('vanetza/in/cam', cam_message)
             print(f'IN -> OBU: {self.name} | MSG: {cam_message}\n')
-
+            if self.special_vehicle == 1:
+                denm_message = self.generate_denm()
+                self.send_message('vanetza/in/denm', denm_message)
+                print(f'IN DENM -> OBU: {self.name} | MSG: {denm_message}\n')
+            
             if self.is_on_node():
                 self.change_edge('global')
             if self.finished:
@@ -92,15 +98,15 @@ class OBU:
         return nx.dijkstra_path(self.graph, self.current_edge[1], destination_node, weight='distance')
 
     def on_message(self, client, userdata, msg):
-        pass
-        # message = json.loads(msg.payload.decode('utf-8'))
-        # msg_type = msg.topic
+        message = json.loads(msg.payload.decode('utf-8'))
+        msg_type = msg.topic
 
-        # if msg_type == 'vanetza/out/cam':
-        #     # self.coords[0] = message['latitude']
-        #     # self.coords[1] = message['longitude']
-        #     # print(f'OUT -> OBU: {self.name} | MSG: {message}\n')
-        #     pass
+        if msg_type == 'vanetza/out/denm':
+            print(f'OUT AMBULANCIA A VIR -> OBU: {self.name} | MSG: {message}\n')
+            # self.coords[0] = message['latitude']
+            # self.coords[1] = message['longitude']
+            # print(f'OUT -> OBU: {self.name} | MSG: {message}\n')
+
 
     def generate_cam(self):
         cam_message = cam.CAM(
@@ -134,6 +140,22 @@ class OBU:
 
         )
         return cam.CAM.to_dict(cam_message)
+    
+    def generate_denm(self):
+        denm_message = denm.DENM(
+            denm.Management(
+                denm.ActionID(1798587532,0),
+                0.0,
+                0.0,
+                denm.EventPosition(self.coords[0], self.coords[1], 
+                denm.PositionConfidenceEllipse(0,0,0), 
+                denm.Altitude(0,0)),
+                0,
+                0
+            ),
+            denm.Situation(7,denm.EventType(14,14))
+        )
+        return denm.DENM.to_dict(denm_message)
     
     def send_message(self, topic, message):
         publish.single(topic, json.dumps(message), hostname=self.address)

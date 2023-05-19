@@ -2,6 +2,7 @@ import paho.mqtt.client as mqtt
 import paho.mqtt.publish as publish
 import time
 import cam
+import denm
 import json
 
 class RSU:
@@ -24,6 +25,7 @@ class RSU:
         client.on_message = self.on_message
         client.connect(self.address, 1883, 60)
         client.subscribe(topic=[("vanetza/out/cam", 0)])
+        client.subscribe(topic=[("vanetza/out/denm", 0)])
         client.loop_start()
 
         while not self.finished:
@@ -44,7 +46,11 @@ class RSU:
         if msg_type == 'vanetza/out/cam':
             # self.coords[0] = message['latitude']
             # self.coords[1] = message['longitude']
-            print(f'OUT -> RSU: {self.name} | MSG: {message}\n')
+            print(f'OUT CAM -> RSU: {self.name} | MSG: {message}\n')
+
+        elif msg_type == 'vanetza/out/denm':
+            self.send_message('vanetza/in/denm', message)
+            print(f'OUT DENM -> RSU: {self.name} | MSG: {message}\n')
 
     def generate_cam(self):
         cam_message = cam.CAM(
@@ -79,6 +85,22 @@ class RSU:
         )
         return cam.CAM.to_dict(cam_message)
     
+    def generate_denm(self):
+        denm_message = denm.DENM(
+            denm.Management(
+                denm.ActionID(1798587532,0),
+                0,
+                0,
+                denm.EventPosition(self.coords[0], self.coords[1], 
+                denm.PositionConfidenceEllipse(0,0,0), 
+                denm.Altitude(0,0)),
+                0,
+                0
+            ),
+            denm.Situation(7,denm.EventType(14,14))
+        )
+        return denm.DENM.to_dict(denm_message)
+
     def send_message(self, topic, message):
         publish.single(topic, json.dumps(message), hostname=self.address)
 

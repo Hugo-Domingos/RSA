@@ -52,6 +52,7 @@ class Simulation:
         self.rsus.append(RSU('rsu4', 4, '192.168.98.60', 'rsu4', [40.632942494084666, -8.653278384842281]))
 
         self.obus.append(OBU('obu1', 1, '192.168.98.20', 'obu1', 1, [40.630573087421965, -8.654125928878786], (0,1), graph=self.graph))
+        self.obus.append(OBU('obu2', 2, '192.168.98.30', 'obu2', 0, [40.63349808896788, -8.654745741573835], (4,5), graph=self.graph))
 
         rsu_threads = []
         for i in range(0, len(self.rsus)):
