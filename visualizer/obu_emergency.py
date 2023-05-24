@@ -1,17 +1,20 @@
 import json
 import paho.mqtt.client as mqtt
 import paho.mqtt.publish as publish
+import geopy.distance
 import time
 import cam
 import denm
 from navigation import Navigation
+import math
 import networkx as nx
 
-class OBU:
-    def __init__(self, name, id, address, obu, special_vehicle, coords, current_edge, graph):
+class OBUEmergency:
+    def __init__(self, name, id, address, mac_address, obu, special_vehicle, coords, current_edge, graph):
         self.name = name
         self.id = id
         self.address = address
+        self.mac_address = mac_address
         self.obu = obu
         self.finished = False
         self.length = 4.5
@@ -21,14 +24,14 @@ class OBU:
         self.navigation = Navigation()
         # self.current_route = starting_route
         # self.coords = self.navigation.get_next_coords(self.current_route, None)
-        # self.coords = self.current_route.get_next_coordinates(None)
+        # # self.coords = self.current_route.get_next_coordinates(None)
         self.graph = graph
         self.current_edge = current_edge
+        # self.coords = coords
         self.coords = None
         self.coords = self.get_next_coords()
         self.special_vehicle = special_vehicle
         # self.road_network = road_network
-        print(f'Best distance path: {self.best_distance_path(5)}')
         self.best_path = self.best_distance_path(5)
 
     def start(self):
@@ -38,15 +41,15 @@ class OBU:
         client.subscribe(topic=[("vanetza/out/denm", 0)])
         client.subscribe(topic=[("vanetza/out/cam", 0)])
         client.loop_start()
-
         while not self.finished:
             cam_message = self.generate_cam()
             self.send_message('vanetza/in/cam', cam_message)
-            print(f'IN -> OBU: {self.name} | MSG: {cam_message}\n')
+            # print(f'IN -> OBU: {self.name} | MSG: {cam_message}\n')
             if self.special_vehicle == 1:
                 denm_message = self.generate_denm()
+                denm_message['management']['stationType'] = 10
                 self.send_message('vanetza/in/denm', denm_message)
-                print(f'IN DENM -> OBU: {self.name} | MSG: {denm_message}\n')
+                # print(f'IN DENM -> OBU: {self.name} | MSG: {denm_message}\n')
             
             if self.is_on_node():
                 self.change_edge('global')
@@ -102,12 +105,17 @@ class OBU:
         msg_type = msg.topic
 
         if msg_type == 'vanetza/out/denm':
-            print(f'OUT AMBULANCIA A VIR -> OBU: {self.name} | MSG: {message}\n')
-            # self.coords[0] = message['latitude']
-            # self.coords[1] = message['longitude']
-            # print(f'OUT -> OBU: {self.name} | MSG: {message}\n')
-
-
+            print(f'OUT DENM -> OBU: {self.name} | MSG: {message}\n')
+            # if( geopy.distance.distance((message['fields']['denm']['management']['eventPosition']['latitude'], message['fields']['denm']['management']['eventPosition']['longitude']), (self.coords[0], self.coords[1])).meters < 125 and message['fields']['denm']['management']['stationType']==10) :
+            #     print("IN RANGE") #check station id para ver se é da ambulancia ou da rsu
+            #     print("amb IS CLOSER,STOPPING")
+            #     #ver se a mbulanci tem long> e lat< que a do obu
+            # elif message['fields']['denm']['management']['stationType']==15:
+            #     print("rsu is says that amb IS CLOSER,STOPPING")
+            # else:
+            #     print("OUT OF RANGE")
+                
+            
     def generate_cam(self):
         cam_message = cam.CAM(
             True,
@@ -144,7 +152,7 @@ class OBU:
     def generate_denm(self):
         denm_message = denm.DENM(
             denm.Management(
-                denm.ActionID(1798587532,0),
+                denm.ActionID(self.id,0),
                 0.0,
                 0.0,
                 denm.EventPosition(self.coords[0], self.coords[1], 
@@ -168,6 +176,8 @@ class OBU:
             self.current_route = self.set_route()
         self.coords = self.current_route.get_next_coords(self.coords)
         
-
     def set_route(self, route):
         self.current_route = route
+
+    def get_coords(self):
+        return self.coords

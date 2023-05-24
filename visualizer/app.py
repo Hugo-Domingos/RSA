@@ -20,8 +20,9 @@ def index():
 
 @app.route('/state')
 def get_state():
-    status = s.get_status()
-    return json.dumps(status)
+    status, connections = s.get_status()
+    print(status, connections)
+    return json.dumps([status, connections])
 
 
 @app.route('/start_simulation', methods=['POST'])

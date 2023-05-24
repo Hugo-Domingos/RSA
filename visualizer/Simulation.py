@@ -1,12 +1,12 @@
 import threading
-from obu import OBU
+from obu_emergency import OBUEmergency
+from obu_normal import OBUNormal
 from route import Route
 from rsu import RSU
 from graph import RoadNetwork, csv_to_road, Intersection, read_csv
 import networkx as nx
 
 class Simulation:
-    # obus = []
 
     def __init__(self):
         self.obus = []
@@ -46,13 +46,13 @@ class Simulation:
         return None
 
     def run(self):
-        self.rsus.append(RSU('rsu1', 1, '192.168.98.10', 'rsu1', [40.6334546665471, -8.654870575236478]))
-        self.rsus.append(RSU('rsu2', 2, '192.168.98.40', 'rsu2', [40.632412479977084, -8.65541774587554]))
-        self.rsus.append(RSU('rsu3', 3, '192.168.98.50', 'rsu3', [40.63198986375213, -8.653578792259104]))
-        self.rsus.append(RSU('rsu4', 4, '192.168.98.60', 'rsu4', [40.632942494084666, -8.653278384842281]))
+        self.rsus.append(RSU('rsu1', 1, '192.168.98.10', '6e:06:e0:03:00:01', 'rsu1', [40.6334546665471, -8.654870575236478]))
+        # self.rsus.append(RSU('rsu2', 4, '192.168.98.40', '6e:06:e0:03:00:04', 'rsu2', [40.632412479977084, -8.65541774587554]))
+        # self.rsus.append(RSU('rsu3', 5, '192.168.98.50', '6e:06:e0:03:00:05', 'rsu3', [40.63198986375213, -8.653578792259104]))
+        # self.rsus.append(RSU('rsu4', 6, '192.168.98.60', '6e:06:e0:03:00:06', 'rsu4', [40.632942494084666, -8.653278384842281]))
 
-        self.obus.append(OBU('obu1', 1, '192.168.98.20', 'obu1', 1, [40.630573087421965, -8.654125928878786], (0,1), graph=self.graph))
-        self.obus.append(OBU('obu2', 2, '192.168.98.30', 'obu2', 0, [40.63349808896788, -8.654745741573835], (4,5), graph=self.graph))
+        self.obus.append(OBUEmergency('obu1', 2, '192.168.98.20', '6e:06:e0:03:00:02', 'obu1', 1, [40.630573087421965, -8.654125928878786], (0,1), graph=self.graph))
+        self.obus.append(OBUNormal('obu2', 3, '192.168.98.30', '6e:06:e0:03:00:03', 'obu2', 0, [40.63269414127195, -8.65525513907526], (4,5), graph=self.graph, obu_emergency=self.obus[0]))
 
         rsu_threads = []
         for i in range(0, len(self.rsus)):
@@ -74,9 +74,13 @@ class Simulation:
 
     def get_status(self):
         status = {}
+        connections = {}
         for obu in self.obus:
             status[obu.name] = {'latitude': obu.coords[0], 'longitude': obu.coords[1]}
-        return status
+        for rsu in self.rsus:
+            connections = rsu.get_connected()
+
+        return status, connections
 
     def kill_simulation(self):
         for obu in self.obus:

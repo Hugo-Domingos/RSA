@@ -1,23 +1,70 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <title>Map</title>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css"
-     integrity="sha256-kLaT2GOSpHechhsozzB+flnD+zUyjE2LlfWPgU04xyI="
-     crossorigin=""/>
-     <!-- Make sure you put this AFTER Leaflet's CSS -->
-     <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"
-     integrity="sha256-WBkoXOwTeyKclOHuWtc+i2uENFpDZ9YPdf5Hf+D7ewM="
-     crossorigin=""></script>
-     <style>
-        #mapid { height: 500px; }
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css"
+        integrity="sha256-kLaT2GOSpHechhsozzB+flnD+zUyjE2LlfWPgU04xyI=" crossorigin="" />
+    <!-- Make sure you put this AFTER Leaflet's CSS -->
+    <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"
+        integrity="sha256-WBkoXOwTeyKclOHuWtc+i2uENFpDZ9YPdf5Hf+D7ewM=" crossorigin=""></script>
+    <style>
+        #mapid {
+            height: 500px;
+        }
+
+        .connection-sign {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 5px;
+        }
+
+        .connection-sign.connected {
+            background-color: green;
+        }
+
+        .connection-sign.disconnected {
+            background-color: red;
+        }
+
+        .connection-sign.gray {
+            background-color: gray;
+        }
     </style>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
 </head>
+
 <body>
     <div id="mapid"></div>
+    <table id="connection-table">
+        <thead>
+            <tr>
+                <th></th> <!-- Empty cell for the top-left corner -->
+                <th>2</th> <!-- Column header for ID 2 -->
+                <th>3</th> <!-- Column header for ID 3 -->
+                <!-- Add more column headers if needed -->
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <th>2</th> <!-- Row header for ID 2 -->
+                <td></td> <!-- Empty cell for the connection status between ID 2 and ID 2 -->
+                <td></td> <!-- Empty cell for the connection status between ID 2 and ID 3 -->
+                <!-- Add more cells for ID 2 connections if needed -->
+            </tr>
+            <tr>
+                <th>3</th> <!-- Row header for ID 3 -->
+                <td></td> <!-- Empty cell for the connection status between ID 3 and ID 2 -->
+                <td></td> <!-- Empty cell for the connection status between ID 3 and ID 3 -->
+                <!-- Add more cells for ID 3 connections if needed -->
+            </tr>
+            <!-- Add more rows and cells for other IDs if needed -->
+        </tbody>
+    </table>
     <button onclick="startSimulation()">Start Simulation</button>
     <button onclick="stopSimulation()">Stop Simulation</button>
     <script>
@@ -30,26 +77,26 @@
         var carIcon = L.icon({
             iconUrl: 'static/car.png',
 
-            iconSize:     [30, 30], // size of the icon
+            iconSize: [30, 30], // size of the icon
         });
         var ambulanceIcon = L.icon({
             iconUrl: 'static/ambulance.png',
 
-            iconSize:     [30, 30], // size of the icon
+            iconSize: [30, 30], // size of the icon
         });
         var antennaIcon = L.icon({
             iconUrl: 'static/antena.png',
 
-            iconSize:     [30, 30], // size of the icon
+            iconSize: [30, 30], // size of the icon
         });
 
-        var rsu_1 = L.marker([40.6334546665471, -8.654870575236478], {icon: antennaIcon}).addTo(mymap);
-        var rsu_2 = L.marker([40.632412479977084, -8.65541774587554], {icon: antennaIcon}).addTo(mymap);
-        var rsu_3 = L.marker([40.63198986375213, -8.653578792259104], {icon: antennaIcon}).addTo(mymap);
-        var rsu_4 = L.marker([40.632942494084666, -8.653278384842281], {icon: antennaIcon}).addTo(mymap);
+        var rsu_1 = L.marker([40.6334546665471, -8.654870575236478], { icon: antennaIcon }).addTo(mymap);
+        var rsu_2 = L.marker([40.632412479977084, -8.65541774587554], { icon: antennaIcon }).addTo(mymap);
+        var rsu_3 = L.marker([40.63198986375213, -8.653578792259104], { icon: antennaIcon }).addTo(mymap);
+        var rsu_4 = L.marker([40.632942494084666, -8.653278384842281], { icon: antennaIcon }).addTo(mymap);
 
-        var car_1 = L.marker([0, 0], {icon: ambulanceIcon}).addTo(mymap);
-        var car_2 = L.marker([40.63269414127195, -8.65525513907526], {icon: carIcon}).addTo(mymap);
+        var car_1 = L.marker([0, 0], { icon: ambulanceIcon }).addTo(mymap);
+        var car_2 = L.marker([40.63269414127195, -8.65525513907526], { icon: carIcon }).addTo(mymap);
 
         var simulationRunning = false;
         var updateInterval;
@@ -58,7 +105,7 @@
             if (!simulationRunning) {
                 simulationRunning = true;
                 $.post('/start_simulation')
-                updateInterval = setInterval(updateMarker, "{{refresh_rate}}");
+                updateInterval = setInterval(getStatus, "{{refresh_rate}}");
             }
         }
 
@@ -70,16 +117,39 @@
             }
         }
 
-        // setInterval(updateMarker, "{{refresh_rate}}");
+        // function getStatus() {
+        //     $.getJSON('/state', function (json) {
+        //         console.log(json);
+        //         car_1.setLatLng([json[0]['obu1'].latitude, json[0]['obu1'].longitude]).update();
 
-        function updateMarker() {
-            console.log("aqui");
-            $.getJSON('/state',function (json) {
+        //     });
+        // }
+
+        function getStatus() {
+            $.getJSON('/state', function (json) {
                 console.log(json);
-                car_1.setLatLng([json['obu1'].latitude, json['obu1'].longitude]).update();
-                // car_2.setLatLng([json['obu2'].latitude, json['obu2'].longitude]).update();
+                var connections = json[1];
+
+                // Loop through the table cells and update their content and color based on the connection status
+                $('#connection-table tbody tr').each(function (index) {
+                    var rowId = $(this).find('th').text();
+                    $(this).find('td').each(function (innerIndex) {
+                        var columnId = $('#connection-table thead th').eq(innerIndex + 1).text(); // Skip the first column header
+                        var isConnected = connections[rowId][columnId];
+                        var connectionClass = isConnected ? 'connected' : 'disconnected';
+                        if (rowId === columnId) {
+                            connectionClass += ' gray'; // Add gray class for the intersection where the column ID is the same as the row ID
+                        }
+                        $(this).html('<span class="connection-sign ' + connectionClass + '"></span>');
+                    });
+                });
+
+                car_1.setLatLng([json[0]['obu1'].latitude, json[0]['obu1'].longitude]).update();
             });
         }
+
+
+
 
         // function kill_sim() {
         //     $.post('/kill_simulation')
@@ -87,5 +157,5 @@
 
     </script>
 </body>
-</html>
 
+</html>
