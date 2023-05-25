@@ -33,6 +33,8 @@ class OBUNormal:
         self.distance_to_ambulance = None
         self.obu_emergency = obu_emergency
         self.blocked = False
+        self.pulled_over = False
+        self.last_received_denm = None
 
     def start(self):
         client = mqtt.Client(self.name)
@@ -43,27 +45,18 @@ class OBUNormal:
         client.loop_start()
 
         while not self.finished:
-            # self.distance_to_ambulance = self.get_distance_from_ambulance(ambulance_coords=self.obu_emergency.get_coords())
-            # print(f"Distance to ambulance: {self.distance_to_ambulance}")
-            # if self.distance_to_ambulance <= 80 and self.blocked:
-            #     print("IN RANGE")
-            #     res = subprocess.call(f"docker-compose exec {self.name} unblock 6e:06:e0:03:00:02", shell=True)
-            #     print(res)
-            #     self.blocked = False
-            # elif self.distance_to_ambulance > 80 and not self.blocked:
-            #     print("OUT OF RANGE")
-            #     subprocess.call(f"docker-compose exec {self.name} block 6e:06:e0:03:00:02", shell=True)
-            #     self.blocked = True
-                
+            if self.obu_emergency.has_finished():
+                self.finished = True
+                break
             cam_message = self.generate_cam()
             self.send_message('vanetza/in/cam', cam_message)
             # print(f'IN -> OBU: {self.name} | MSG: {cam_message}\n')
-            if self.special_vehicle == 1:
-                denm_message = self.generate_denm()
-                denm_message['management']['stationType'] = 10
-                self.send_message('vanetza/in/denm', denm_message)
-                # print(f'IN DENM -> OBU: {self.name} | MSG: {denm_message}\n')
             
+            # if the last recevied denm is older than 2 seconds, then the obu is not pulled over
+            if self.last_received_denm is not None and time.time() - self.last_received_denm > 2:
+                self.pulled_over = False
+            
+
             time.sleep(1)
         
         # end the client
@@ -76,18 +69,9 @@ class OBUNormal:
 
         if msg_type == 'vanetza/out/denm':
             print(f"OUT DENM OBU[{ message['fields']['denm']['management']['actionID']['originatingStationID'] }] -> OBU[{ self.id }]: {self.name}\n")
+            self.pulled_over = True
+            self.last_received_denm = message['timestamp']
             
-            # if( geopy.distance.distance((message['fields']['denm']['management']['eventPosition']['latitude'], message['fields']['denm']['management']['eventPosition']['longitude']), (self.coords[0], self.coords[1])).meters < 125 and message['fields']['denm']['management']['stationType']==10) :
-            #     print("IN RANGE") #check station id para ver se é da ambulancia ou da rsu
-            #     print("amb IS CLOSER,STOPPING")
-            #     # subprocess.call(f"docker-compose exec {self.name} unblock 6e:06:e0:03:00:02", shell=True)
-            #     #ver se a mbulanci tem long> e lat< que a do obu
-            # elif message['fields']['denm']['management']['stationType']==15:
-            #     print("rsu is says that amb IS CLOSER,STOPPING")
-            # else:
-            #     print("OUT OF RANGE")
-            #     # subprocess.call(f"docker-compose exec {self.name} block 6e:06:e0:03:00:02", shell=True)
-
     def get_distance_from_ambulance(self, ambulance_coords):
         return geopy.distance.distance(ambulance_coords, self.coords).meters
 
@@ -148,3 +132,6 @@ class OBUNormal:
 
     def set_route(self, route):
         self.current_route = route
+
+    def get_pulled_over(self):
+        return self.pulled_over

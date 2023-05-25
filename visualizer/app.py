@@ -20,13 +20,14 @@ def index():
 
 @app.route('/state')
 def get_state():
-    status, connections = s.get_status()
-    print(status, connections)
-    return json.dumps([status, connections])
+    status, connections, pulled_over, finished = s.get_status()
+    # print(status, connections, pulled_over)
+    return json.dumps([status, connections, pulled_over, finished])
 
 
 @app.route('/start_simulation', methods=['POST'])
 def start_simulation():
+    print('starting simulation')
     thread = threading.Thread(target=s.run)
     thread.start()
     # thread.join()

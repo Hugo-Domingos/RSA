@@ -22,16 +22,11 @@ class OBUEmergency:
         self.speed = 0
         self.velocity = 0
         self.navigation = Navigation()
-        # self.current_route = starting_route
-        # self.coords = self.navigation.get_next_coords(self.current_route, None)
-        # # self.coords = self.current_route.get_next_coordinates(None)
         self.graph = graph
         self.current_edge = current_edge
-        # self.coords = coords
         self.coords = None
         self.coords = self.get_next_coords()
         self.special_vehicle = special_vehicle
-        # self.road_network = road_network
         self.best_path = self.best_distance_path(5)
 
     def start(self):
@@ -104,16 +99,8 @@ class OBUEmergency:
         message = json.loads(msg.payload.decode('utf-8'))
         msg_type = msg.topic
 
-        if msg_type == 'vanetza/out/denm':
-            print(f'OUT DENM -> OBU: {self.name} | MSG: {message}\n')
-            # if( geopy.distance.distance((message['fields']['denm']['management']['eventPosition']['latitude'], message['fields']['denm']['management']['eventPosition']['longitude']), (self.coords[0], self.coords[1])).meters < 125 and message['fields']['denm']['management']['stationType']==10) :
-            #     print("IN RANGE") #check station id para ver se é da ambulancia ou da rsu
-            #     print("amb IS CLOSER,STOPPING")
-            #     #ver se a mbulanci tem long> e lat< que a do obu
-            # elif message['fields']['denm']['management']['stationType']==15:
-            #     print("rsu is says that amb IS CLOSER,STOPPING")
-            # else:
-            #     print("OUT OF RANGE")
+        # if msg_type == 'vanetza/out/denm':
+        #     print(f'OUT DENM -> OBU: {self.name} | MSG: {message}\n')
                 
             
     def generate_cam(self):
@@ -181,3 +168,6 @@ class OBUEmergency:
 
     def get_coords(self):
         return self.coords
+    
+    def has_finished(self):
+        return self.finished

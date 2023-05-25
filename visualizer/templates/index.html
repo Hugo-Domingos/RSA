@@ -34,39 +34,29 @@
         .connection-sign.gray {
             background-color: gray;
         }
+
+        #connection-table {
+            width: auto;
+            margin-top: 10px;
+            border-collapse: collapse;
+        }
+
+        #connection-table th,
+        #connection-table td {
+            padding: 5px;
+            text-align: center;
+            border: 1px solid black;
+        }
     </style>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
 </head>
 
 <body>
     <div id="mapid"></div>
-    <table id="connection-table">
-        <thead>
-            <tr>
-                <th></th> <!-- Empty cell for the top-left corner -->
-                <th>2</th> <!-- Column header for ID 2 -->
-                <th>3</th> <!-- Column header for ID 3 -->
-                <!-- Add more column headers if needed -->
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <th>2</th> <!-- Row header for ID 2 -->
-                <td></td> <!-- Empty cell for the connection status between ID 2 and ID 2 -->
-                <td></td> <!-- Empty cell for the connection status between ID 2 and ID 3 -->
-                <!-- Add more cells for ID 2 connections if needed -->
-            </tr>
-            <tr>
-                <th>3</th> <!-- Row header for ID 3 -->
-                <td></td> <!-- Empty cell for the connection status between ID 3 and ID 2 -->
-                <td></td> <!-- Empty cell for the connection status between ID 3 and ID 3 -->
-                <!-- Add more cells for ID 3 connections if needed -->
-            </tr>
-            <!-- Add more rows and cells for other IDs if needed -->
-        </tbody>
-    </table>
-    <button onclick="startSimulation()">Start Simulation</button>
-    <button onclick="stopSimulation()">Stop Simulation</button>
+    <div id="connection-table-placeholder"></div> <!-- Placeholder div for the table -->
+    <div id="pulled-over-placeholder"></div> <!-- Placeholder div for the table -->
+    <button id="start-button" onclick="startSimulation()">Start Simulation</button>
+    <button id="stop-button" onclick="stopSimulation()">Stop Simulation</button>
     <script>
         // initialize the map on the "map" div with a given center and zoom
         var mymap = L.map('mapid').setView([40.63260789120826, -8.655074423121608], 17);
@@ -97,6 +87,7 @@
 
         var car_1 = L.marker([0, 0], { icon: ambulanceIcon }).addTo(mymap);
         var car_2 = L.marker([40.63269414127195, -8.65525513907526], { icon: carIcon }).addTo(mymap);
+        var car_3 = L.marker([40.6322218272483, -8.655029797050233], { icon: carIcon }).addTo(mymap);
 
         var simulationRunning = false;
         var updateInterval;
@@ -108,7 +99,7 @@
                 updateInterval = setInterval(getStatus, "{{refresh_rate}}");
             }
         }
-
+        
         function stopSimulation() {
             if (simulationRunning) {
                 simulationRunning = false;
@@ -117,36 +108,72 @@
             }
         }
 
-        // function getStatus() {
-        //     $.getJSON('/state', function (json) {
-        //         console.log(json);
-        //         car_1.setLatLng([json[0]['obu1'].latitude, json[0]['obu1'].longitude]).update();
-
-        //     });
-        // }
-
         function getStatus() {
             $.getJSON('/state', function (json) {
-                console.log(json);
+                simulationRunning = !json[3];
                 var connections = json[1];
+                var ids = Object.keys(connections); // Get all the IDs from the JSON data
 
-                // Loop through the table cells and update their content and color based on the connection status
-                $('#connection-table tbody tr').each(function (index) {
-                    var rowId = $(this).find('th').text();
-                    $(this).find('td').each(function (innerIndex) {
-                        var columnId = $('#connection-table thead th').eq(innerIndex + 1).text(); // Skip the first column header
-                        var isConnected = connections[rowId][columnId];
-                        var connectionClass = isConnected ? 'connected' : 'disconnected';
-                        if (rowId === columnId) {
-                            connectionClass += ' gray'; // Add gray class for the intersection where the column ID is the same as the row ID
+                // Generate the table structure dynamically if the JSON data is not empty
+                var tableHtml = '';
+                if (ids.length > 0) {
+                    tableHtml += '<table id="connection-table">';
+                    tableHtml += '<thead><tr><th></th>'; // Empty cell for the top-left corner
+                    for (var i = 0; i < ids.length; i++) {
+                        tableHtml += '<th>' + ids[i] + '</th>'; // Column headers based on IDs
+                    }
+                    tableHtml += '</tr></thead><tbody>';
+                    for (var i = 0; i < ids.length; i++) {
+                        var rowId = ids[i];
+                        tableHtml += '<tr><th>' + rowId + '</th>'; // Row header based on ID
+                        for (var j = 0; j < ids.length; j++) {
+                            var columnId = ids[j];
+                            var isConnected = connections[rowId][columnId];
+                            var connectionClass = isConnected ? 'connected' : 'disconnected';
+                            if (rowId === columnId) {
+                                connectionClass += ' gray'; // Add gray class for the intersection where the column ID is the same as the row ID
+                            }
+                            tableHtml += '<td><span class="connection-sign ' + connectionClass + '"></span></td>'; // Table cell with connection sign
                         }
-                        $(this).html('<span class="connection-sign ' + connectionClass + '"></span>');
-                    });
-                });
+                        tableHtml += '</tr>';
+                    }
+                    tableHtml += '</tbody></table>';
+                } else {
+                    tableHtml += 'No data available.'; // Display a message if the JSON data is empty
+                }
+
+                // Replace the existing table or message with the updated table structure
+                $('#connection-table-placeholder').html(tableHtml);
+
+                var pulled_over = json[2]; // {id1: false, id2: true, ...}
+                var ids = Object.keys(pulled_over); // Get all the IDs from the JSON data
+                
+                // Generate table with two columns [id, pulled_over]
+                var tableHtml = '';
+                if (ids.length > 0) {
+                    tableHtml += '<table id="pulled-over-table">';
+                    tableHtml += '<thead><tr><th>ID</th><th>Pulled Over</th></tr></thead><tbody>';
+                    for (var i = 0; i < ids.length; i++) {
+                        var rowId = ids[i];
+                        tableHtml += '<tr><th>' + rowId + '</th>'; // Row header based on ID
+                        var isPulledOver = pulled_over[rowId];
+                        var pulledOverClass = isPulledOver ? 'connected' : 'disconnected';
+                        tableHtml += '<td><span class="connection-sign ' + pulledOverClass + '"></span></td>'; // Table cell with connection sign
+                        tableHtml += '</tr>';
+                    }
+                    tableHtml += '</tbody></table>';
+                } else {
+                    tableHtml += 'No data available.'; // Display a message if the JSON data is empty
+                }
+
+                // Replace the existing table or message with the updated table structure
+                $('#pulled-over-placeholder').html(tableHtml);
 
                 car_1.setLatLng([json[0]['obu1'].latitude, json[0]['obu1'].longitude]).update();
             });
         }
+
+
 
 
 

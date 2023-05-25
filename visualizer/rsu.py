@@ -20,17 +20,24 @@ import networkx as nx
 
 connected = {
     2 : {
-        2 : False,
-        3 : False,
+        2 : True,
+        3 : True,
+        7 : True,
     },
     3 : {
-        2 : False,
-        3 : False,
+        2 : True,
+        3 : True,
+        7 : True,
+    },
+    7 : {
+        2 : True,
+        3 : True,
+        7 : True,
     },
 }
 
 class RSU:
-    def __init__(self, name, id, address, mac_address, rsu, coords):
+    def __init__(self, name, id, address, mac_address, rsu, coords, special_vehicle):
         self.name = name
         self.id = id
         self.address = address
@@ -41,13 +48,14 @@ class RSU:
         self.width = 1.8
         # self.route = route
         self.coords = coords
-
+        self.special_vehicle = special_vehicle
         #to be removed
         self.speed = 0
 
         self.received_obu_coordinates = {
             2: {'coords': [], 'mac': '6e:06:e0:03:00:02', 'name': 'obu1'},
             3: {'coords': [], 'mac': '6e:06:e0:03:00:03', 'name': 'obu2'},
+            7: {'coords': [], 'mac': '6e:06:e0:03:00:07', 'name': 'obu3'}
         }
 
     def start(self):
@@ -59,6 +67,9 @@ class RSU:
         client.loop_start()
 
         while not self.finished:
+            if self.special_vehicle.has_finished():
+                self.finished = True
+                break
             self.check_ranges()
             cam_message = self.generate_cam()
             self.send_message('vanetza/in/cam', cam_message)
@@ -235,24 +246,27 @@ class RSU:
             print(id1, id2)
             coord1 = self.received_obu_coordinates[id1]['coords']
             coord2 = self.received_obu_coordinates[id2]['coords']
-            res = False
             global connected
             if coord1 != [] and coord2 != []:
                 distance = geopy.distance.distance(coord1, coord2).m
-                if distance < 100:
-                    print(f'RSU: {self.name} | OBU: {id1} and OBU: {id2} are in range\n')
-                    subprocess.call(f"docker-compose exec {self.received_obu_coordinates[id1]['name']} unblock {self.received_obu_coordinates[id2]['mac']}", shell=True)
+                print(distance)
+                if distance < 80 and not connected[id1][id2]:
+                    # print(f'RSU: {self.name} | OBU: {id1} and OBU: {id2} are in range\n')
                     print(f"docker-compose exec {self.received_obu_coordinates[id1]['name']} unblock {self.received_obu_coordinates[id2]['mac']}")
-                    res = True
-                else:
-                    print(f'RSU: {self.name} | OBU: {id1} and OBU: {id2} are not in range\n')
-                    subprocess.call(f"docker-compose exec {self.received_obu_coordinates[id1]['name']} block {self.received_obu_coordinates[id2]['mac']}", shell=True)
-                    print(f"docker-compose exec {self.received_obu_coordinates[id1]['name']} block {self.received_obu_coordinates[id2]['mac']}")
+                    subprocess.run(f"docker-compose exec {self.received_obu_coordinates[id1]['name']} unblock {self.received_obu_coordinates[id2]['mac']}", shell=True, check=True)
+                    connected[id1][id2] = True
+                elif distance > 80 and connected[id1][id2]:
+                    # print(f'RSU: {self.name} | OBU: {id1} and OBU: {id2} are not in range\n')
+                    subprocess.run(f"docker-compose exec {self.received_obu_coordinates[id1]['name']} block {self.received_obu_coordinates[id2]['mac']}", shell=True, check=True)
+                    # print(f"docker-compose exec {self.received_obu_coordinates[id1]['name']} block {self.received_obu_coordinates[id2]['mac']}")
+                    connected[id1][id2] = False
             else:
-                print(f'RSU: {self.name} | OBU: {id1} and OBU: {id2} are not in range\n')
-                subprocess.call(f"docker-compose exec {self.received_obu_coordinates[id1]['name']} block {self.received_obu_coordinates[id2]['mac']}", shell=True)
-                print(f"docker-compose exec {self.received_obu_coordinates[id1]['name']} block {self.received_obu_coordinates[id2]['mac']}")
-            connected[id1][id2] = res
+                # print(f'RSU: {self.name} | OBU: {id1} and OBU: {id2} are not in range\n')
+                subprocess.run(f"docker-compose exec {self.received_obu_coordinates[id1]['name']} block {self.received_obu_coordinates[id2]['mac']}", shell=True, check=True)
+                # print(f"docker-compose exec {self.received_obu_coordinates[id1]['name']} block {self.received_obu_coordinates[id2]['mac']}")
+                connected[id1][id2] = False
+        print(connected)
     
     def get_connected(self):
+        global connected
         return connected
