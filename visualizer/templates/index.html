@@ -86,8 +86,10 @@
         var rsu_4 = L.marker([40.632942494084666, -8.653278384842281], { icon: antennaIcon }).addTo(mymap);
 
         var car_1 = L.marker([0, 0], { icon: ambulanceIcon }).addTo(mymap);
-        var car_2 = L.marker([40.63269414127195, -8.65525513907526], { icon: carIcon }).addTo(mymap);
-        var car_3 = L.marker([40.6322218272483, -8.655029797050233], { icon: carIcon }).addTo(mymap);
+        var car_2 = L.marker([40.632117412866464,-8.654894869965462], { icon: carIcon }).addTo(mymap);
+        car_2.bindPopup("<b>Car 2</b><br>OBU ID 3</br>");
+        var car_3 = L.marker([40.632611380765496,-8.655181013429457], { icon: carIcon }).addTo(mymap);
+        car_3.bindPopup("<b>Car 3</b><br>OBU ID 7</br>");
 
         var simulationRunning = false;
         var updateInterval;

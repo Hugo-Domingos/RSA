@@ -21,13 +21,17 @@ class OBUEmergency:
         self.width = 1.8
         self.speed = 0
         self.velocity = 0
-        self.navigation = Navigation()
         self.graph = graph
         self.current_edge = current_edge
         self.coords = None
         self.coords = self.get_next_coords()
         self.special_vehicle = special_vehicle
         self.best_path = self.best_distance_path(5)
+        self.cars_on_lane = {}
+        # get lane ids from self.graph and create a dict with lane id as key and an empty list as value
+        for edge in self.graph.edges():
+            id = self.graph.get_edge_data(*edge)['attr']['id']
+            self.cars_on_lane[id] = []
 
     def start(self):
         client = mqtt.Client(self.name)
@@ -47,7 +51,7 @@ class OBUEmergency:
                 # print(f'IN DENM -> OBU: {self.name} | MSG: {denm_message}\n')
             
             if self.is_on_node():
-                self.change_edge('global')
+                self.change_edge('congestion')
             if self.finished:
                 break
             self.coords = self.get_next_coords()
@@ -79,7 +83,31 @@ class OBUEmergency:
         elif type_of_search == 'global':
             successor_id = self.best_path[self.best_path.index(self.current_edge[1]) + 1]
             self.current_edge = (self.current_edge[1], successor_id)
+        elif type_of_search == 'congestion':
+            successor_id = self.best_successor_congestion()
+            self.current_edge = (self.current_edge[1], successor_id)
         self.coords = None
+        # # construct dict with the id of the lanes as keys and the number of cars on the lane as values
+        # number_of_cars_on_lane = {}
+        # for lane_id in self.cars_on_lane:
+        #     number_of_cars_on_lane[lane_id] = len(self.cars_on_lane[lane_id])
+        # print(f"NUMBER OF CARS ON LANE: {number_of_cars_on_lane}\n")
+
+    def best_successor_congestion(self):
+        # construct dict with the id of the lanes as keys and the number of cars on the lane as values
+        number_of_cars_on_lane = {}
+        for lane_id in self.cars_on_lane:
+            number_of_cars_on_lane[lane_id] = len(self.cars_on_lane[lane_id])
+        print(f"NUMBER OF CARS ON LANE: {number_of_cars_on_lane}\n")
+        # get the successor with the least number of cars
+        successors = list(self.graph.successors(self.current_edge[1]))
+        min_cars = number_of_cars_on_lane[self.graph.get_edge_data(self.current_edge[1], successors[0])['attr']['id']]
+        min_cars_successor = successors[0]
+        for successor in successors:
+            if number_of_cars_on_lane[self.graph.get_edge_data(self.current_edge[1], successor)['attr']['id']] < min_cars:
+                min_cars = number_of_cars_on_lane[self.graph.get_edge_data(self.current_edge[1], successor)['attr']['id']]
+                min_cars_successor = successor
+        return min_cars_successor
 
     def get_successor_min_distance(self):
         successors = list(self.graph.successors(self.current_edge[1]))
@@ -99,9 +127,34 @@ class OBUEmergency:
         message = json.loads(msg.payload.decode('utf-8'))
         msg_type = msg.topic
 
-        # if msg_type == 'vanetza/out/denm':
-        #     print(f'OUT DENM -> OBU: {self.name} | MSG: {message}\n')
-                
+        if msg_type == 'vanetza/out/cam':
+            if message['stationID'] != self.id and message['stationType'] != 15:    #  CAM messages received from other OBUs
+                print(f"OUT CAM sender ( {message['stationID']} ) OBU: {self.name} | MSG: {message}\n")
+                cam_latitude = message['latitude']
+                cam_longitude = message['longitude']       
+                if message['stationID'] not in self.cars_on_lane[self.get_lane_from_coords((cam_latitude, cam_longitude))]:
+                    self.cars_on_lane[self.get_lane_from_coords((cam_latitude, cam_longitude))].append(message['stationID'])
+                print(f"CARS ON LANE: {self.cars_on_lane}\n")
+
+    def get_lane_from_coords(self, coords):
+        for edge in self.graph.edges():
+            # aux is a list of self.graph.get_edge_data(*edge)['attr']['list_of_coordinates'] with the coordinates concatenated to only 7 decimal places with floor if the latitude is positive and ceil if the latitude is negative and the same for the longitude
+            aux = self.convert_list_of_coordinates_to_list_of_coordinates_with_7_decimal_places(self.graph.get_edge_data(*edge)['attr']['list_of_coordinates'])
+            if coords in aux:
+                return self.graph.get_edge_data(*edge)['attr']['id']
+        return None
+    
+    def convert_list_of_coordinates_to_list_of_coordinates_with_7_decimal_places(self, list_of_coordinates):
+        aux = []
+        for coordinate in list_of_coordinates:
+            tmp = []
+            for x in coordinate:
+                if x < 0:
+                    tmp.append(math.ceil(x*10000000)/10000000)
+                else:
+                    tmp.append(math.floor(x*10000000)/10000000)
+            aux.append(tuple(tmp))
+        return aux
             
     def generate_cam(self):
         cam_message = cam.CAM(
@@ -129,10 +182,9 @@ class OBUEmergency:
             0,
             True,
             self.id,
-            15,
+            10,
             self.width,
-            0,
-
+            0
         )
         return cam.CAM.to_dict(cam_message)
     

@@ -24,7 +24,6 @@ class OBUNormal:
         self.width = 1.8
         self.speed = 0
         self.velocity = 0
-        self.navigation = Navigation()
         self.distance_to_ambulance = 0
         self.graph = graph
         self.current_edge = current_edge
@@ -56,6 +55,9 @@ class OBUNormal:
             if self.last_received_denm is not None and time.time() - self.last_received_denm > 2:
                 self.pulled_over = False
             
+            # print(f"CURRENT EDGE: {self.current_edge}")
+            # # get current edge id from self.graph
+            # print(nx.get_edge_attributes(self.graph, 'attr')[self.current_edge]['id'])
 
             time.sleep(1)
         
@@ -101,10 +103,9 @@ class OBUNormal:
             0,
             True,
             self.id,
-            15,
+            10,
             self.width,
             0,
-
         )
         return cam.CAM.to_dict(cam_message)
     
