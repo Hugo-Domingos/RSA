@@ -16,12 +16,52 @@ services:
             - VANETZA_CAM_PERIODICITY=0
         networks:
             vanetzalan0:
-                ipv4_address: 192.168.98.10
+                ipv4_address: 192.168.98.11
         sysctls:      
             kernel.msgmax:  65536
             kernel.msgmnb:  65536
     # rsu2:
     #     hostname: rsu2
+    #     restart: always
+    #     image: code.nap.av.it.pt:5050/mobility-networks/vanetza:latest
+    #     cap_add:
+    #         - "NET_ADMIN"
+    #     environment:
+    #         - VANETZA_STATION_ID=2
+    #         - VANETZA_STATION_TYPE=15
+    #         - VANETZA_MAC_ADDRESS=6e:06:e0:03:00:02
+    #         - VANETZA_INTERFACE=br0
+    #         - START_EMBEDDED_MOSQUITTO=true
+    #         - SUPPORT_MAC_BLOCKING=true
+    #         - VANETZA_CAM_PERIODICITY=0
+    #     networks:
+    #         vanetzalan0:
+    #             ipv4_address: 192.168.98.12
+    #     sysctls:      
+    #         kernel.msgmax:  65536
+    #         kernel.msgmnb:  65536
+    # rsu3:
+    #     hostname: rsu3
+    #     restart: always
+    #     image: code.nap.av.it.pt:5050/mobility-networks/vanetza:latest
+    #     cap_add:
+    #         - "NET_ADMIN"
+    #     environment:
+    #         - VANETZA_STATION_ID=3
+    #         - VANETZA_STATION_TYPE=15
+    #         - VANETZA_MAC_ADDRESS=6e:06:e0:03:00:03
+    #         - VANETZA_INTERFACE=br0
+    #         - START_EMBEDDED_MOSQUITTO=true
+    #         - SUPPORT_MAC_BLOCKING=true
+    #         - VANETZA_CAM_PERIODICITY=0
+    #     networks:
+    #         vanetzalan0:
+    #             ipv4_address: 192.168.98.13
+    #     sysctls:      
+    #         kernel.msgmax:  65536
+    #         kernel.msgmnb:  65536
+    # rsu4:
+    #     hostname: rsu4
     #     restart: always
     #     image: code.nap.av.it.pt:5050/mobility-networks/vanetza:latest
     #     cap_add:
@@ -36,47 +76,7 @@ services:
     #         - VANETZA_CAM_PERIODICITY=0
     #     networks:
     #         vanetzalan0:
-    #             ipv4_address: 192.168.98.40
-    #     sysctls:      
-    #         kernel.msgmax:  65536
-    #         kernel.msgmnb:  65536
-    # rsu3:
-    #     hostname: rsu3
-    #     restart: always
-    #     image: code.nap.av.it.pt:5050/mobility-networks/vanetza:latest
-    #     cap_add:
-    #         - "NET_ADMIN"
-    #     environment:
-    #         - VANETZA_STATION_ID=4
-    #         - VANETZA_STATION_TYPE=15
-    #         - VANETZA_MAC_ADDRESS=6e:06:e0:03:00:05
-    #         - VANETZA_INTERFACE=br0
-    #         - START_EMBEDDED_MOSQUITTO=true
-    #         - SUPPORT_MAC_BLOCKING=true
-    #         - VANETZA_CAM_PERIODICITY=0
-    #     networks:
-    #         vanetzalan0:
-    #             ipv4_address: 192.168.98.50
-    #     sysctls:      
-    #         kernel.msgmax:  65536
-    #         kernel.msgmnb:  65536
-    # rsu4:
-    #     hostname: rsu4
-    #     restart: always
-    #     image: code.nap.av.it.pt:5050/mobility-networks/vanetza:latest
-    #     cap_add:
-    #         - "NET_ADMIN"
-    #     environment:
-    #         - VANETZA_STATION_ID=4
-    #         - VANETZA_STATION_TYPE=15
-    #         - VANETZA_MAC_ADDRESS=6e:06:e0:03:00:06
-    #         - VANETZA_INTERFACE=br0
-    #         - START_EMBEDDED_MOSQUITTO=true
-    #         - SUPPORT_MAC_BLOCKING=true
-    #         - VANETZA_CAM_PERIODICITY=0
-    #     networks:
-    #         vanetzalan0:
-    #             ipv4_address: 192.168.98.60
+    #             ipv4_address: 192.168.98.14
     #     sysctls:      
     #         kernel.msgmax:  65536
     #         kernel.msgmnb:  65536
@@ -88,16 +88,16 @@ services:
         cap_add:
             - "NET_ADMIN"
         environment:
-            - VANETZA_STATION_ID=2
+            - VANETZA_STATION_ID=5
             - VANETZA_STATION_TYPE=5
-            - VANETZA_MAC_ADDRESS=6e:06:e0:03:00:02
+            - VANETZA_MAC_ADDRESS=6e:06:e0:03:00:05
             - VANETZA_INTERFACE=br0
             - START_EMBEDDED_MOSQUITTO=true
             - SUPPORT_MAC_BLOCKING=true
             - VANETZA_CAM_PERIODICITY=0
         networks:
             vanetzalan0:
-                ipv4_address: 192.168.98.20
+                ipv4_address: 192.168.98.15
         sysctls:      
             kernel.msgmax:  65536
             kernel.msgmnb:  65536
@@ -109,16 +109,16 @@ services:
         cap_add:
             - "NET_ADMIN"
         environment:
-            - VANETZA_STATION_ID=3
+            - VANETZA_STATION_ID=6
             - VANETZA_STATION_TYPE=5
-            - VANETZA_MAC_ADDRESS=6e:06:e0:03:00:03
+            - VANETZA_MAC_ADDRESS=6e:06:e0:03:00:06
             - VANETZA_INTERFACE=br0
             - START_EMBEDDED_MOSQUITTO=true
             - SUPPORT_MAC_BLOCKING=true
             - VANETZA_CAM_PERIODICITY=0
         networks:
             vanetzalan0:
-                ipv4_address: 192.168.98.30
+                ipv4_address: 192.168.98.16
         sysctls:      
             kernel.msgmax:  65536
             kernel.msgmnb:  65536
@@ -139,7 +139,67 @@ services:
             - VANETZA_CAM_PERIODICITY=0
         networks:
             vanetzalan0:
-                ipv4_address: 192.168.98.70
+                ipv4_address: 192.168.98.17
+        sysctls:      
+            kernel.msgmax:  65536
+            kernel.msgmnb:  65536
+    obu4:
+        hostname: obu4
+        restart: always
+        image: code.nap.av.it.pt:5050/mobility-networks/vanetza:latest
+        cap_add:
+            - "NET_ADMIN"
+        environment:
+            - VANETZA_STATION_ID=8
+            - VANETZA_STATION_TYPE=5
+            - VANETZA_MAC_ADDRESS=6e:06:e0:03:00:08
+            - VANETZA_INTERFACE=br0
+            - START_EMBEDDED_MOSQUITTO=true
+            - SUPPORT_MAC_BLOCKING=true
+            - VANETZA_CAM_PERIODICITY=0
+        networks:
+            vanetzalan0:
+                ipv4_address: 192.168.98.18
+        sysctls:      
+            kernel.msgmax:  65536
+            kernel.msgmnb:  65536
+    obu5:
+        hostname: obu5
+        restart: always
+        image: code.nap.av.it.pt:5050/mobility-networks/vanetza:latest
+        cap_add:
+            - "NET_ADMIN"
+        environment:
+            - VANETZA_STATION_ID=9
+            - VANETZA_STATION_TYPE=5
+            - VANETZA_MAC_ADDRESS=6e:06:e0:03:00:09
+            - VANETZA_INTERFACE=br0
+            - START_EMBEDDED_MOSQUITTO=true
+            - SUPPORT_MAC_BLOCKING=true
+            - VANETZA_CAM_PERIODICITY=0
+        networks:
+            vanetzalan0:
+                ipv4_address: 192.168.98.19
+        sysctls:      
+            kernel.msgmax:  65536
+            kernel.msgmnb:  65536
+    obu6:
+        hostname: obu6
+        restart: always
+        image: code.nap.av.it.pt:5050/mobility-networks/vanetza:latest
+        cap_add:
+            - "NET_ADMIN"
+        environment:
+            - VANETZA_STATION_ID=10
+            - VANETZA_STATION_TYPE=5
+            - VANETZA_MAC_ADDRESS=6e:06:e0:03:00:10
+            - VANETZA_INTERFACE=br0
+            - START_EMBEDDED_MOSQUITTO=true
+            - SUPPORT_MAC_BLOCKING=true
+            - VANETZA_CAM_PERIODICITY=0
+        networks:
+            vanetzalan0:
+                ipv4_address: 192.168.98.20
         sysctls:      
             kernel.msgmax:  65536
             kernel.msgmnb:  65536

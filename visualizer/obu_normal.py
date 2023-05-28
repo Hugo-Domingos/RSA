@@ -73,6 +73,14 @@ class OBUNormal:
             print(f"OUT DENM OBU[{ message['fields']['denm']['management']['actionID']['originatingStationID'] }] -> OBU[{ self.id }]: {self.name}\n")
             self.pulled_over = True
             self.last_received_denm = message['timestamp']
+
+        # if msg_type == 'vanetza/out/cam':
+        #     # resend message with data of the cam received
+        #     if message['fields']['cam']['header']['stationID'] != self.id:
+        #         print(f"OUT CAM OBU[{ message['fields']['cam']['header']['stationID'] }] -> OBU[{ self.id }]: {self.name}\n")
+        #         self.send_message('vanetza/in/cam', message)
+                # self.pulled_over = False
+                
             
     def get_distance_from_ambulance(self, ambulance_coords):
         return geopy.distance.distance(ambulance_coords, self.coords).meters
