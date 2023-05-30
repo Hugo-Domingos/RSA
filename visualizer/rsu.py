@@ -35,6 +35,7 @@ class RSU:
         self.speed = 0
         self.current_edge = current_edge
         self.graph = graph
+        self.ambulance_edge=self.graph.edges[(0,1)]
         self.connected = {
             5 : {
                 5 : True,
@@ -126,21 +127,88 @@ class RSU:
         # end the client
         client.loop_stop()
         client.disconnect()
-        
+    
+    def convert_list_of_coordinates_to_list_of_coordinates_with_7_decimal_places(self, list_of_coordinates):
+        aux = []
+        for coordinate in list_of_coordinates:
+            tmp = []
+            for x in coordinate:
+                if x < 0:
+                    tmp.append(math.ceil(x*10000000)/10000000)
+                else:
+                    tmp.append(math.floor(x*10000000)/10000000)
+            aux.append(tuple(tmp))
+        # print(aux)
+        return aux
+
+    def get_ambulance_edge(self,coords):
+        ##get the edge of the ambulance
+        ##return the edge id
+        ##get the closest node to the ambulance
+        ##get the edges connected to the node
+        edges = (self.graph.edges())
+        nodes = (self.graph.nodes())
+        for node in nodes:
+            if coords[0] == (nodes[node]['attr']['latitude'],nodes[node]['attr']['longitude']):
+                print("AMBULANCE IS IN NODE"+str(node))
+                pass
+        # print(edges)
+        ##get the edge with the ambulance
+        for edge in edges:
+            edges_coords =self.convert_list_of_coordinates_to_list_of_coordinates_with_7_decimal_places(self.graph.edges[edge]['attr']['list_of_coordinates'])
+            # print("ambulance coords",coords)
+            # print("edges coords",edges_coords)
+            #check if its not in a intersection point
+
+
+            if coords[0] in edges_coords:
+                print("AMBULANCE IS IN EDGE"+str(edge))
+                self.ambulance_edge=edge
+                # return edge
+
 
     def on_message(self, client, userdata, msg):
         message = json.loads(msg.payload.decode('utf-8'))
         msg_type = msg.topic
-        # print(f'IN -> RSU: {self.name} | MSG: {msg_type}\n')
+        # print(message['longitude'])
+        # self.get_ambulance_edge(message['latitude'],message['longitude'])
+
         if msg_type == 'vanetza/out/cam':
             # print(f"OUT CAM -> RSU: {self.name} | stationID: {message['stationID']} | MSG: {message}\n")
             if self.id == 1 and message['stationID'] in self.received_obu_coordinates.keys():
                 self.received_obu_coordinates[message['stationID']]['coords'] = [message['latitude'], message['longitude']]
 
+            if message['stationType'] == 10:
+                #get the edge of the ambulance
+                self.get_ambulance_edge([(message['latitude'], message['longitude'])])
+                #send spatem message to the obus
+                #get other edges that goes to the end node of the ambulance edge
+                
+                #check the conections of the node of the ambulance edge
+                graph_edges = self.graph.edges()
+                egdes=[]
+                
+                egdes.append(self.graph.edges[self.ambulance_edge]['attr']['signalGroup'])
+                states=[]
+                states.append(5)
+                for edge in graph_edges:
+                    if edge[0] == self.ambulance_edge[1] and edge not in egdes:
+                        # print("edge",edge)
+                        egdes.append(self.graph.edges[edge]['attr']['signalGroup'])
+                        states.append(2)
+
+                print("states",states)
+                print("egdes",egdes)
+                spatem_message = self.generate_spatem(1,states,egdes)
+                self.send_message('vanetza/in/spatem', spatem_message)
+
+
             # resend message with data of the cam received
             if message['stationID'] != self.id:
                 print("RSU IS FORWARDING CAM MESSAGE")
                 self.send_message('vanetza/in/cam', message)
+
+
 
 
 
@@ -248,7 +316,7 @@ class RSU:
                 }
             )
 
-        print(spatem)
+        # print(spatem)
         return spatem
 
 

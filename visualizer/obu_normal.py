@@ -33,6 +33,7 @@ class OBUNormal:
         self.obu_emergency = obu_emergency
         self.blocked = False
         self.pulled_over = False
+        self.signal_group = None
         self.last_received_denm = None
 
     def start(self):
@@ -41,6 +42,7 @@ class OBUNormal:
         client.connect(self.address, 1883, 60)
         client.subscribe(topic=[("vanetza/out/denm", 0)])
         client.subscribe(topic=[("vanetza/out/cam", 0)])
+        client.subscribe(topic=[("vanetza/out/spatem", 0)])
         client.loop_start()
 
         while not self.finished:
@@ -65,6 +67,9 @@ class OBUNormal:
         client.loop_stop()
         client.disconnect()
 
+    def get_obu_edge(self):
+        return self.current_edge
+
     def on_message(self, client, userdata, msg):
         message = json.loads(msg.payload.decode('utf-8'))
         msg_type = msg.topic
@@ -74,6 +79,21 @@ class OBUNormal:
             self.pulled_over = True
             self.last_received_denm = message['timestamp']
 
+        if msg_type == 'vanetza/out/spatem':
+            # print(f"OUT SPATEM OBU[{ message}] -> OBU[{ self.current_edge }]: {self.name}\n")
+            edges = self.graph.edges()
+            states = message['fields']['spat']['intersections'][0]['states']
+
+            for state in states:
+                print (state['signalGroup'])
+                if state['signalGroup'] == edges[self.current_edge]['attr']['signalGroup']:
+                    if state['state-time-speed'][0]['eventState'] == 2:
+                        self.signal_group = state['signalGroup']
+                        print("OBU" + str(self.current_edge) + " -> ROSSO")
+                    else:
+                        self.signal_group = state['signalGroup']
+                        print("OBU" + str(self.current_edge) + " -> VERDE")              
+         
         # if msg_type == 'vanetza/out/cam':
         #     # resend message with data of the cam received
         #     if message['fields']['cam']['header']['stationID'] != self.id:
@@ -111,7 +131,7 @@ class OBUNormal:
             0,
             True,
             self.id,
-            10,
+            19,
             self.width,
             0,
         )
@@ -144,3 +164,6 @@ class OBUNormal:
 
     def get_pulled_over(self):
         return self.pulled_over
+    
+    def get_signal_group(self):
+        return self.signal_group
