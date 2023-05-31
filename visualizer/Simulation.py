@@ -11,14 +11,15 @@ import networkx as nx
 
 class Simulation:
 
-    def __init__(self):
+    def __init__(self, situation=0):
+        print(f'Situation: {situation}')
         self.finished = True
         self.normal_obus = []
         self.special_obus = []
         self.rsus = []
 
-        self.random_edges = []
-        self.random_coordinates = []
+        self.normal_obu_edges = []
+        self.normal_obu_coordinates = []
 
         self.graph = nx.DiGraph()
 
@@ -60,6 +61,11 @@ class Simulation:
         self.graph.add_edge(0, 9, attr={'list_of_coordinates':road11_coordinates, 'distance': 180, 'id': 11,'signalGroup': 3})
         self.graph.add_edge(9, 3, attr={'list_of_coordinates':road12_coordinates, 'distance': 120, 'id': 12,'signalGroup': 4})
 
+        self.situation = situation
+
+    def set_situation(self, situation):
+        print(f'Situation: {situation}')
+        self.situation = situation
 
     def at_node(self, current_coords):
         for node in self.graph.nodes:
@@ -75,23 +81,39 @@ class Simulation:
         subprocess.run("docker ps", shell=True, check=True)
         self.special_obus.append(OBUEmergency('obu1', 5, '192.168.98.15', '6e:06:e0:03:00:05', 'obu1', 1, [40.62975477416346,-8.653675317764284], (8, 0), graph=self.graph))
         time.sleep(3)
-        print("GRAPH")
-        print(self.graph)
-        # get n random coordinates from the random edges of the graph
-        n = 5
-        self.random_edges = []
-        self.random_coordinates = []
-        for i in range(n):
-            self.random_edges.append(random.choice(list(self.graph.edges)))
-            self.random_coordinates.append(random.choice(self.graph.edges[self.random_edges[i]]['attr']['list_of_coordinates']))
+        if self.situation == 0:
+            # get n random coordinates from the random edges of the graph
+            n = 5
+            self.normal_obu_edges = []
+            self.normal_obu_coordinates = []
+            for i in range(n):
+                self.normal_obu_edges.append(random.choice(list(self.graph.edges)))
+                self.normal_obu_coordinates.append(random.choice(self.graph.edges[self.normal_obu_edges[i]]['attr']['list_of_coordinates']))
 
-        self.normal_obus.append(OBUNormal('obu2', 6, '192.168.98.16', '6e:06:e0:03:00:06', 'obu2', 0, self.random_coordinates[0], self.random_edges[0], graph=self.graph, obu_emergency=self.special_obus[0]))
-        self.normal_obus.append(OBUNormal('obu3', 7, '192.168.98.17', '6e:06:e0:03:00:07', 'obu3', 0, self.random_coordinates[1], self.random_edges[1], graph=self.graph, obu_emergency=self.special_obus[0]))
-        self.normal_obus.append(OBUNormal('obu4', 8, '192.168.98.18', '6e:06:e0:03:00:08', 'obu4', 0, self.random_coordinates[2], self.random_edges[2], graph=self.graph, obu_emergency=self.special_obus[0]))
-        self.normal_obus.append(OBUNormal('obu5', 9, '192.168.98.19', '6e:06:e0:03:00:09', 'obu5', 0, self.random_coordinates[3], self.random_edges[3], graph=self.graph, obu_emergency=self.special_obus[0]))
-        self.normal_obus.append(OBUNormal('obu6', 10, '192.168.98.20', '6e:06:e0:03:00:10', 'obu6', 0, self.random_coordinates[4], self.random_edges[4], graph=self.graph, obu_emergency=self.special_obus[0]))
+            self.normal_obus.append(OBUNormal('obu2', 6, '192.168.98.16', '6e:06:e0:03:00:06', 'obu2', 0, self.normal_obu_coordinates[0], self.normal_obu_edges[0], graph=self.graph, obu_emergency=self.special_obus[0]))
+            self.normal_obus.append(OBUNormal('obu3', 7, '192.168.98.17', '6e:06:e0:03:00:07', 'obu3', 0, self.normal_obu_coordinates[1], self.normal_obu_edges[1], graph=self.graph, obu_emergency=self.special_obus[0]))
+            self.normal_obus.append(OBUNormal('obu4', 8, '192.168.98.18', '6e:06:e0:03:00:08', 'obu4', 0, self.normal_obu_coordinates[2], self.normal_obu_edges[2], graph=self.graph, obu_emergency=self.special_obus[0]))
+            self.normal_obus.append(OBUNormal('obu5', 9, '192.168.98.19', '6e:06:e0:03:00:09', 'obu5', 0, self.normal_obu_coordinates[3], self.normal_obu_edges[3], graph=self.graph, obu_emergency=self.special_obus[0]))
+            self.normal_obus.append(OBUNormal('obu6', 10, '192.168.98.20', '6e:06:e0:03:00:10', 'obu6', 0, self.normal_obu_coordinates[4], self.normal_obu_edges[4], graph=self.graph, obu_emergency=self.special_obus[0]))
+        elif self.situation == 1:
+            self.normal_obu_edges = []
+            self.normal_obu_coordinates = []
+            self.normal_obu_edges = [(1,2) for i in range(3)]
+            self.normal_obu_edges.append((0,1))
+            self.normal_obu_edges.append((0,1))
+            self.normal_obu_coordinates.append([40.631788100933775,-8.654704107656132])
+            self.normal_obu_coordinates.append([40.632117412866464,-8.654894869965462])
+            self.normal_obu_coordinates.append([40.63244672479915,-8.655085632274792])
+            self.normal_obu_coordinates.append([40.630904133350626,-8.654311403031949])
+            self.normal_obu_coordinates.append([40.63123517927929,-8.654496877185112])
+            self.normal_obus.append(OBUNormal('obu2', 6, '192.168.98.16', '6e:06:e0:03:00:06', 'obu2', 0, self.normal_obu_coordinates[0], self.normal_obu_edges[0], graph=self.graph, obu_emergency=self.special_obus[0]))
+            self.normal_obus.append(OBUNormal('obu3', 7, '192.168.98.17', '6e:06:e0:03:00:07', 'obu3', 0, self.normal_obu_coordinates[1], self.normal_obu_edges[1], graph=self.graph, obu_emergency=self.special_obus[0]))
+            self.normal_obus.append(OBUNormal('obu4', 8, '192.168.98.18', '6e:06:e0:03:00:08', 'obu4', 0, self.normal_obu_coordinates[2], self.normal_obu_edges[2], graph=self.graph, obu_emergency=self.special_obus[0]))
+            self.normal_obus.append(OBUNormal('obu5', 9, '192.168.98.19', '6e:06:e0:03:00:09', 'obu5', 0, self.normal_obu_coordinates[3], self.normal_obu_edges[3], graph=self.graph, obu_emergency=self.special_obus[0]))
+            self.normal_obus.append(OBUNormal('obu6', 10, '192.168.98.20', '6e:06:e0:03:00:10', 'obu6', 0, self.normal_obu_coordinates[4], self.normal_obu_edges[4], graph=self.graph, obu_emergency=self.special_obus[0]))
+            
 
-        self.rsus.append(RSU('rsu1', 1, '192.168.98.11', '6e:06:e0:03:00:01', 'rsu1', [40.6334546665471, -8.654870575236478], special_vehicle=self.special_obus[0], current_edge=(4, 5), graph=self.graph, random_coordinates=self.random_coordinates))
+        self.rsus.append(RSU('rsu1', 1, '192.168.98.11', '6e:06:e0:03:00:01', 'rsu1', [40.6334546665471, -8.654870575236478], special_vehicle=self.special_obus[0], current_edge=(4, 5), graph=self.graph, normal_obu_coordinates=self.normal_obu_coordinates))
         # self.rsus.append(RSU('rsu2', 2, '192.168.98.12', '6e:06:e0:03:00:02', 'rsu2', [40.632412479977084, -8.65541774587554], special_vehicle=self.special_obus[0]))
         # self.rsus.append(RSU('rsu3', 3, '192.168.98.13', '6e:06:e0:03:00:03', 'rsu3', [40.63198986375213, -8.653578792259104], special_vehicle=self.special_obus[0]))
         # self.rsus.append(RSU('rsu4', 4, '192.168.98.14', '6e:06:e0:03:00:04', 'rsu4', [40.632942494084666, -8.653278384842281], special_vehicle=self.special_obus[0]))
@@ -143,7 +165,7 @@ class Simulation:
         for rsu in self.rsus:
             connections = rsu.get_connected()
 
-        return status, connections, pulled_over, self.finished, self.random_coordinates
+        return status, connections, pulled_over, self.finished, self.normal_obu_coordinates
 
     def kill_simulation(self):
         for obu in self.normal_obus:

@@ -19,7 +19,7 @@ import math
 import networkx as nx
 
 class RSU:
-    def __init__(self, name, id, address, mac_address, rsu, coords, special_vehicle, current_edge, graph, random_coordinates):
+    def __init__(self, name, id, address, mac_address, rsu, coords, special_vehicle, current_edge, graph, normal_obu_coordinates):
         self.name = name
         self.id = id
         self.address = address
@@ -89,11 +89,11 @@ class RSU:
 
         self.received_obu_coordinates = {
             5: {'coords': [40.62975477416346,-8.653675317764284], 'mac': '6e:06:e0:03:00:05', 'name': 'obu1'},
-            6: {'coords': random_coordinates[0], 'mac': '6e:06:e0:03:00:06', 'name': 'obu2'},
-            7: {'coords': random_coordinates[1], 'mac': '6e:06:e0:03:00:07', 'name': 'obu3'},
-            8: {'coords': random_coordinates[2], 'mac': '6e:06:e0:03:00:08', 'name': 'obu4'},
-            9: {'coords': random_coordinates[3], 'mac': '6e:06:e0:03:00:09', 'name': 'obu5'},
-            10: {'coords': random_coordinates[4], 'mac': '6e:06:e0:03:00:10', 'name': 'obu6'},
+            6: {'coords': normal_obu_coordinates[0], 'mac': '6e:06:e0:03:00:06', 'name': 'obu2'},
+            7: {'coords': normal_obu_coordinates[1], 'mac': '6e:06:e0:03:00:07', 'name': 'obu3'},
+            8: {'coords': normal_obu_coordinates[2], 'mac': '6e:06:e0:03:00:08', 'name': 'obu4'},
+            9: {'coords': normal_obu_coordinates[3], 'mac': '6e:06:e0:03:00:09', 'name': 'obu5'},
+            10: {'coords': normal_obu_coordinates[4], 'mac': '6e:06:e0:03:00:10', 'name': 'obu6'},
         }
 
         # # block all comunication between OBUs with docker-compose exec obu_id block mac_address 

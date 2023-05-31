@@ -57,9 +57,10 @@
     <div id="pulled-over-placeholder"></div> <!-- Placeholder div for the table -->
     <button id="start-button" onclick="startSimulation()">Start Simulation</button>
     <button id="stop-button" onclick="stopSimulation()">Stop Simulation</button>
+    <button id="situation1-button" onclick="situation1()">Situation 1</button>
     <script>
         // initialize the map on the "map" div with a given center and zoom
-        var mymap = L.map('mapid').setView([40.63260789120826, -8.655074423121608], 18);
+        var mymap = L.map('mapid').setView([40.63260789120826, -8.655074423121608], 16);
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors',
             maxZoom: 18,
@@ -115,6 +116,15 @@
                 $.post('/kill_simulation')
             }
         }
+
+        function situation1() {
+            if (!simulationRunning) {
+                simulationRunning = true;
+                $.post('/start_simulation', { situation_id: 1 })
+                updateInterval = setInterval(getStatus, "{{refresh_rate}}");
+            }
+        }
+
 
         function getStatus() {
             $.getJSON('/state', function (json) {

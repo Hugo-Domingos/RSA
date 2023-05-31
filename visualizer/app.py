@@ -2,6 +2,7 @@ from flask import Flask, render_template
 import paho.mqtt.client as mqtt
 import threading
 import json
+from flask import request
 
 from Simulation import Simulation
 
@@ -24,10 +25,12 @@ def get_state():
     # print(status, connections, pulled_over)
     return json.dumps([status, connections, pulled_over, finished, cars_coordinates])
 
-
 @app.route('/start_simulation', methods=['POST'])
 def start_simulation():
     print('starting simulation')
+    global s
+    situation_id = int(request.form.get('situation_id', 0))
+    s.set_situation(situation_id)
     thread = threading.Thread(target=s.run)
     thread.start()
     # thread.join()
