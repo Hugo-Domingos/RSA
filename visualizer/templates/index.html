@@ -87,16 +87,17 @@
         var rsu_4 = L.marker([40.632942494084666, -8.653278384842281], { icon: antennaIcon }).addTo(mymap);
 
         var car_1 = L.marker([0, 0], { icon: ambulanceIcon }).addTo(mymap);
+        car_1.bindPopup("<b>Car 1</b><br>Station Id: 5</br>",{ autoClose: false, closeOnClick: false });
         var car_2 = L.marker([0, 0], { icon: carIcon }).addTo(mymap);
-        car_2.bindPopup("<b>Car 2</b><br>Station Id: 6</br>");
+        car_2.bindPopup("<b>Car 2</b><br>Station Id: 6</br>",{ autoClose: false, closeOnClick: false });
         var car_3 = L.marker([0, 0], { icon: carIcon }).addTo(mymap);
-        car_3.bindPopup("<b>Car 3</b><br>Station Id: 7</br>");
+        car_3.bindPopup("<b>Car 3</b><br>Station Id: 7</br>",{ autoClose: false, closeOnClick: false });
         var car_4 = L.marker([0, 0], { icon: carIcon }).addTo(mymap);
-        car_4.bindPopup("<b>Car 4</b><br>Station Id: 8</br>");
+        car_4.bindPopup("<b>Car 4</b><br>Station Id: 8</br>",{ autoClose: false, closeOnClick: false });
         var car_5 = L.marker([0, 0], { icon: carIcon }).addTo(mymap);
-        car_5.bindPopup("<b>Car 5</b><br>Station Id: 9</br>");
+        car_5.bindPopup("<b>Car 5</b><br>Station Id: 9</br>",{ autoClose: false, closeOnClick: false });
         var car_6 = L.marker([0, 0], { icon: carIcon }).addTo(mymap);
-        car_6.bindPopup("<b>Car 6</b><br>Station Id: 10</br>");
+        car_6.bindPopup("<b>Car 6</b><br>Station Id: 10</br>",{ autoClose: false, closeOnClick: false });
 
         var simulationRunning = false;
         var updateInterval;
