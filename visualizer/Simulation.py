@@ -22,19 +22,29 @@ class Simulation:
 
         self.graph = nx.DiGraph()
 
-        self.graph.add_node(0, attr={'latitude': 40.630573087421965, 'longitude': -8.654125928878786, 'connections': {1: (40.63162344496743, -8.654608726501467), 3: (40.63162344496743, -8.654597997665407)}})
+        self.graph.add_node(0, attr={'latitude': 40.630573087421965, 'longitude': -8.654125928878786, 'connections': {1: (40.63162344496743, -8.654608726501467), 3: (40.63162344496743, -8.654597997665407), 6: (40.6300466215235, -8.654799637383748), 9: (40.631306540191524, -8.652005912660032)}})
         self.graph.add_node(1, attr={'latitude': 40.63162344496743, 'longitude': -8.654608726501467, 'connections': {2: (40.63327629974076, -8.655552864074709)}})
         self.graph.add_node(2, attr={'latitude': 40.63327629974076, 'longitude': -8.655552864074709, 'connections': {5: (40.63349808896788,-8.654745741573835)}})
         self.graph.add_node(3, attr={'latitude': 40.63162344496743, 'longitude': -8.654597997665407, 'connections': {4: (40.63367391921257, -8.653817896059198)}})
         self.graph.add_node(4, attr={'latitude': 40.63367391921257, 'longitude': -8.653817896059198, 'connections': {5: (40.63349808896788,-8.654745741573835)}})
         self.graph.add_node(5, attr={'latitude': 40.63349808896788, 'longitude': -8.654745741573835, 'connections': {}})
-        
+        self.graph.add_node(6, attr={'latitude': 40.6300466215235, 'longitude': -8.654799637383748, 'connections': {7: (40.63187020342297,-8.657101544495264)}})
+        self.graph.add_node(7, attr={'latitude': 40.63187020342297, 'longitude': -8.657101544495264, 'connections': {2: (40.63327629974076, -8.655552864074709)}})
+        self.graph.add_node(8, attr={'latitude': 40.62975477416346, 'longitude': -8.653675317764284, 'connections': {0: (40.630573087421965, -8.654125928878786)}})
+        self.graph.add_node(9, attr={'latitude': 40.631306540191524, 'longitude': -8.652005912660032, 'connections': {3: (40.63162344496743, -8.654597997665407)}})
+
         road1_coordinates = read_csv('coordinates/street1.csv')
         road2_coordinates = read_csv('coordinates/street2.csv')
         road3_coordinates = read_csv('coordinates/street3.csv')
         road4_coordinates = read_csv('coordinates/street4.csv')
         road5_coordinates = read_csv('coordinates/street5.csv')
         road6_coordinates = read_csv('coordinates/street6.csv')
+        road7_coordinates = read_csv('coordinates/street7.csv')
+        road8_coordinates = read_csv('coordinates/street8.csv')
+        road9_coordinates = read_csv('coordinates/street9.csv')
+        road10_coordinates = read_csv('coordinates/street10.csv')
+        road11_coordinates = read_csv('coordinates/street11.csv')
+        road12_coordinates = read_csv('coordinates/street12.csv')
 
         self.graph.add_edge(0, 1, attr={'list_of_coordinates':road1_coordinates, 'distance': 120, 'id': 1,'signalGroup': 1})
         self.graph.add_edge(1, 2, attr={'list_of_coordinates':road2_coordinates, 'distance': 200, 'id': 2 ,'signalGroup': 2})
@@ -42,6 +52,13 @@ class Simulation:
         self.graph.add_edge(3, 4, attr={'list_of_coordinates':road4_coordinates, 'distance': 180, 'id': 4,'signalGroup': 4})
         self.graph.add_edge(2, 5, attr={'list_of_coordinates':road3_coordinates, 'distance': 80, 'id': 3,'signalGroup': 5})
         self.graph.add_edge(4, 5, attr={'list_of_coordinates':road6_coordinates, 'distance': 80, 'id': 6,'signalGroup': 5})
+
+        self.graph.add_edge(0, 6, attr={'list_of_coordinates':road7_coordinates, 'distance': 80, 'id': 7,'signalGroup': 6})
+        self.graph.add_edge(6, 7, attr={'list_of_coordinates':road8_coordinates, 'distance': 270, 'id': 8,'signalGroup': 7})
+        self.graph.add_edge(7, 2, attr={'list_of_coordinates':road9_coordinates, 'distance': 180, 'id': 9,'signalGroup': 2})
+        self.graph.add_edge(8, 0, attr={'list_of_coordinates':road10_coordinates, 'distance': 100, 'id': 10,'signalGroup': 1})
+        self.graph.add_edge(0, 9, attr={'list_of_coordinates':road11_coordinates, 'distance': 180, 'id': 11,'signalGroup': 3})
+        self.graph.add_edge(9, 3, attr={'list_of_coordinates':road12_coordinates, 'distance': 120, 'id': 12,'signalGroup': 4})
 
 
     def at_node(self, current_coords):
@@ -56,7 +73,7 @@ class Simulation:
         process.wait()
 
         subprocess.run("docker ps", shell=True, check=True)
-        self.special_obus.append(OBUEmergency('obu1', 5, '192.168.98.15', '6e:06:e0:03:00:05', 'obu1', 1, [40.630573087421965, -8.654125928878786], (0,1), graph=self.graph))
+        self.special_obus.append(OBUEmergency('obu1', 5, '192.168.98.15', '6e:06:e0:03:00:05', 'obu1', 1, [40.62975477416346,-8.653675317764284], (8, 0), graph=self.graph))
         time.sleep(3)
         print("GRAPH")
         print(self.graph)
@@ -74,7 +91,7 @@ class Simulation:
         self.normal_obus.append(OBUNormal('obu5', 9, '192.168.98.19', '6e:06:e0:03:00:09', 'obu5', 0, self.random_coordinates[3], self.random_edges[3], graph=self.graph, obu_emergency=self.special_obus[0]))
         self.normal_obus.append(OBUNormal('obu6', 10, '192.168.98.20', '6e:06:e0:03:00:10', 'obu6', 0, self.random_coordinates[4], self.random_edges[4], graph=self.graph, obu_emergency=self.special_obus[0]))
 
-        self.rsus.append(RSU('rsu1', 1, '192.168.98.11', '6e:06:e0:03:00:01', 'rsu1', [40.6334546665471, -8.654870575236478], special_vehicle=self.special_obus[0], current_edge=(4, 5), graph=self.graph))
+        self.rsus.append(RSU('rsu1', 1, '192.168.98.11', '6e:06:e0:03:00:01', 'rsu1', [40.6334546665471, -8.654870575236478], special_vehicle=self.special_obus[0], current_edge=(4, 5), graph=self.graph, random_coordinates=self.random_coordinates))
         # self.rsus.append(RSU('rsu2', 2, '192.168.98.12', '6e:06:e0:03:00:02', 'rsu2', [40.632412479977084, -8.65541774587554], special_vehicle=self.special_obus[0]))
         # self.rsus.append(RSU('rsu3', 3, '192.168.98.13', '6e:06:e0:03:00:03', 'rsu3', [40.63198986375213, -8.653578792259104], special_vehicle=self.special_obus[0]))
         # self.rsus.append(RSU('rsu4', 4, '192.168.98.14', '6e:06:e0:03:00:04', 'rsu4', [40.632942494084666, -8.653278384842281], special_vehicle=self.special_obus[0]))

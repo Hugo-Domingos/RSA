@@ -55,14 +55,8 @@ class RoadNetwork:
         self.graph.add_node(intersection.id, attr={'latitude': intersection.latitude, 'longitude': intersection.longitude, 'connections': intersection.connections})
     
     def decide_new_road(self, current_road):
-        print(f'Current road: {current_road.id}')
-        print(f'Current road end: {current_road.end}')
         intersection_id = list(self.graph[current_road.end.id].keys())[0]
-        print(f'Intersection: {intersection_id}')
         connections = self.graph.nodes[intersection_id]
-        print(f'Connections: {connections}')
-        
-        print( self.graph.nodes[list(connections.keys())[0]] )
 
     def plot_road_network(self):
         # create a cartopy projection using Plate Carree (a cylindrical projection)

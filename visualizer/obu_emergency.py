@@ -42,7 +42,7 @@ class OBUEmergency:
         client.subscribe(topic=[("vanetza/out/denm", 0)])
         client.subscribe(topic=[("vanetza/out/cam", 0)])
         client.loop_start()
-        time.sleep(5)
+        time.sleep(10)
         while not self.finished:
             cam_message = self.generate_cam()
             self.send_message('vanetza/in/cam', cam_message)
@@ -58,7 +58,7 @@ class OBUEmergency:
             if self.finished:
                 break
             self.coords = self.get_next_coords()
-            time.sleep(1)
+            time.sleep(3)
         
         # end the client
         client.loop_stop()
@@ -66,7 +66,6 @@ class OBUEmergency:
     
     def get_next_coords(self):
         if self.coords == None:
-            print(self.current_edge)
             aux = list(self.graph.get_edge_data(*self.current_edge)['attr']['list_of_coordinates'])[0]
             return aux
         current_coords_index = list(self.graph.get_edge_data(*self.current_edge)['attr']['list_of_coordinates']).index(self.coords)
@@ -100,6 +99,7 @@ class OBUEmergency:
         number_of_cars_on_lane = {}
         for lane_id in self.cars_on_lane:
             number_of_cars_on_lane[lane_id] = len(self.cars_on_lane[lane_id])
+        print(f'number_of_cars_on_lane: {number_of_cars_on_lane}')
 
         # compute the total distance on each path from all_paths and the total number of cars on each path
         total_distance = {}
@@ -129,7 +129,7 @@ class OBUEmergency:
         # compute the hybrid punctuation
         hybrid_punctuation = {}
         for path in total_distance_punctuation:
-            hybrid_punctuation[path] = total_distance_punctuation[path] * 0.5 + total_cars_punctuation[path] * 0.5
+            hybrid_punctuation[path] = total_distance_punctuation[path] * 0.3 + total_cars_punctuation[path] * 0.7
         print(f'hybrid_punctuation: {hybrid_punctuation}')
         # get the path with the highest hybrid punctuation
         best_path_key_str = max(hybrid_punctuation, key=hybrid_punctuation.get)
@@ -185,19 +185,14 @@ class OBUEmergency:
             # aux is a list of self.graph.get_edge_data(*edge)['attr']['list_of_coordinates'] with the coordinates concatenated to only 7 decimal places with floor if the latitude is positive and ceil if the latitude is negative and the same for the longitude
             aux = self.convert_list_of_coordinates_to_list_of_coordinates_with_7_decimal_places(self.graph.get_edge_data(*edge)['attr']['list_of_coordinates'])
             if coords in aux:
-                print('normal')
                 return self.graph.get_edge_data(*edge)['attr']['id']
             elif [coords[0]+0.0000001, coords[1]] in aux:
-                print('plus on latitude')
                 return self.graph.get_edge_data(*edge)['attr']['id']
             elif [coords[0]-0.0000001, coords[1]] in aux:
-                print('minus on latitude')
                 return self.graph.get_edge_data(*edge)['attr']['id']
             elif [coords[0], coords[1]+0.0000001] in aux:
-                print('plus on longitude')
                 return self.graph.get_edge_data(*edge)['attr']['id']
             elif [coords[0], coords[1]-0.0000001] in aux:
-                print('minus on longitude')
                 return self.graph.get_edge_data(*edge)['attr']['id']
         return None
     

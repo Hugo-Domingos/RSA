@@ -1,4 +1,4 @@
-from itertools import permutations
+from itertools import permutations, combinations
 import subprocess
 import paho.mqtt.client as mqtt
 import paho.mqtt.publish as publish
@@ -19,7 +19,7 @@ import math
 import networkx as nx
 
 class RSU:
-    def __init__(self, name, id, address, mac_address, rsu, coords, special_vehicle, current_edge, graph):
+    def __init__(self, name, id, address, mac_address, rsu, coords, special_vehicle, current_edge, graph, random_coordinates):
         self.name = name
         self.id = id
         self.address = address
@@ -88,15 +88,15 @@ class RSU:
         }
 
         self.received_obu_coordinates = {
-            5: {'coords': [], 'mac': '6e:06:e0:03:00:05', 'name': 'obu1'},
-            6: {'coords': [], 'mac': '6e:06:e0:03:00:06', 'name': 'obu2'},
-            7: {'coords': [], 'mac': '6e:06:e0:03:00:07', 'name': 'obu3'},
-            8: {'coords': [], 'mac': '6e:06:e0:03:00:08', 'name': 'obu4'},
-            9: {'coords': [], 'mac': '6e:06:e0:03:00:09', 'name': 'obu5'},
-            10: {'coords': [], 'mac': '6e:06:e0:03:00:10', 'name': 'obu6'},
+            5: {'coords': [40.62975477416346,-8.653675317764284], 'mac': '6e:06:e0:03:00:05', 'name': 'obu1'},
+            6: {'coords': random_coordinates[0], 'mac': '6e:06:e0:03:00:06', 'name': 'obu2'},
+            7: {'coords': random_coordinates[1], 'mac': '6e:06:e0:03:00:07', 'name': 'obu3'},
+            8: {'coords': random_coordinates[2], 'mac': '6e:06:e0:03:00:08', 'name': 'obu4'},
+            9: {'coords': random_coordinates[3], 'mac': '6e:06:e0:03:00:09', 'name': 'obu5'},
+            10: {'coords': random_coordinates[4], 'mac': '6e:06:e0:03:00:10', 'name': 'obu6'},
         }
 
-        # block all comunication between OBUs with docker-compose exec obu_id block mac_address 
+        # # block all comunication between OBUs with docker-compose exec obu_id block mac_address 
         # for obu_id in self.received_obu_coordinates.keys():
         #     for obu_id2 in self.received_obu_coordinates.keys():
         #         if obu_id != obu_id2:
@@ -205,7 +205,6 @@ class RSU:
 
             # resend message with data of the cam received
             if message['stationID'] != self.id:
-                print("RSU IS FORWARDING CAM MESSAGE")
                 self.send_message('vanetza/in/cam', message)
 
 
@@ -322,7 +321,7 @@ class RSU:
 
     def check_ranges(self):
         ids = list(self.received_obu_coordinates.keys())
-        pairs = permutations(ids, 2)
+        pairs = combinations(ids, 2)
         '''
         connected = {
             'id1': {

@@ -54,7 +54,7 @@ class OBUNormal:
             # print(f'IN -> OBU: {self.name} | MSG: {cam_message}\n')
             
             # if the last recevied denm is older than 2 seconds, then the obu is not pulled over
-            if self.last_received_denm is not None and time.time() - self.last_received_denm > 2:
+            if self.last_received_denm is not None and time.time() - self.last_received_denm > 5:
                 self.pulled_over = False
             
             # print(f"CURRENT EDGE: {self.current_edge}")
@@ -75,7 +75,7 @@ class OBUNormal:
         msg_type = msg.topic
 
         if msg_type == 'vanetza/out/denm':
-            print(f"OUT DENM OBU[{ message['fields']['denm']['management']['actionID']['originatingStationID'] }] -> OBU[{ self.id }]: {self.name}\n")
+            # print(f"OUT DENM OBU[{ message['fields']['denm']['management']['actionID']['originatingStationID'] }] -> OBU[{ self.id }]: {self.name}\n")
             self.pulled_over = True
             self.last_received_denm = message['timestamp']
 
@@ -89,10 +89,10 @@ class OBUNormal:
                 if state['signalGroup'] == edges[self.current_edge]['attr']['signalGroup']:
                     if state['state-time-speed'][0]['eventState'] == 2:
                         self.signal_group = state['signalGroup']
-                        print("OBU" + str(self.current_edge) + " -> ROSSO")
+                        # print("OBU" + str(self.current_edge) + " -> ROSSO")
                     else:
                         self.signal_group = state['signalGroup']
-                        print("OBU" + str(self.current_edge) + " -> VERDE")              
+                        # print("OBU" + str(self.current_edge) + " -> VERDE")              
          
         # if msg_type == 'vanetza/out/cam':
         #     # resend message with data of the cam received
