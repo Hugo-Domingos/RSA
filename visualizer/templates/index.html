@@ -13,18 +13,21 @@
     <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"
         integrity="sha256-WBkoXOwTeyKclOHuWtc+i2uENFpDZ9YPdf5Hf+D7ewM=" crossorigin=""></script>
     <style>
+
         #mapid {
             height: 800px;
+            margin-top: 10px;
+            margin-left: 1px;
+            border: 1px solid black;
         }
 
         #graph-canvas {
             border: 1px solid black;
             margin-top: 10px;
-            /* transform: rotate(-90deg); */
         }
 
         .no-padding {
-            padding: 0 !important;
+            padding: 1 !important;
         }
 
         .connection-sign {
@@ -50,6 +53,7 @@
         #connection-table {
             width: auto;
             margin-top: 10px;
+            margin-left: 10px;
             border-collapse: collapse;
         }
 
@@ -59,6 +63,149 @@
             text-align: center;
             border: 1px solid black;
         }
+
+        #connection-table th {
+            background-color: #dfd7976c;
+        }
+
+        #pulled-over-table th
+        {
+            background-color: #dfd7976c;
+
+        }
+        #pulled-over-table {
+            width: auto;
+            margin-top: 10px;
+            border-collapse: collapse;
+        }
+        #pulled-over-table th,
+        #pulled-over-table td {
+            padding: 5px;
+            text-align: center;
+            border: 1px solid black;
+        }
+
+
+        #signal-group-table {
+            width: auto;
+            margin-top: 10px;
+            border-collapse: collapse;
+        }
+
+        #signal-group-table th,
+        #signal-group-table td {
+            padding: 5px;
+            text-align: center;
+            border: 1px solid black;
+        }
+
+        #signal-group-table th {
+            background-color: #dfd7976c;
+        }
+
+        #paths-table {
+            width: auto;
+            margin-top: 10px;
+            border-collapse: collapse;
+        }
+
+        #paths-table th,
+        #paths-table td {
+            padding: 5px;
+            text-align: center;
+            border: 1px solid black;
+        }
+
+        #paths-table th {
+            background-color: #dfd7976c;
+        }
+
+        #best-path-table {
+            width: auto;
+            margin-top: 10px;
+            border-collapse: collapse;
+        }
+
+        #best-path-table th,
+
+        #best-path-table td {
+            padding: 5px;
+            text-align: center;
+            border: 1px solid black;
+        }
+
+        #best-path-table th {
+            background-color: #dfd7976c;
+        }
+
+        #start-button {
+            background-color: #57b0d3;
+            border: none;
+            margin-left: 10px;
+            margin-top: 10px;
+            padding: 15px 32px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 25px;
+        }
+
+        #stop-button {
+            background-color: #57b0d3;
+            margin-left: auto;
+            border: none;
+            padding: 15px 32px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 25px;
+        }
+
+        #situation1-button {
+            background-color: #57b0d3;
+            border: none;
+            padding: 15px 32px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 25px;
+        }
+
+        #situation2-button {
+            background-color: #57b0d3;
+            border: none;
+            padding: 15px 32px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 25px;
+        }
+
+        #graph-canvas {
+            margin-top: 10px;
+        }
+
+        #best-path-placeholder {
+            margin-top: 10px;
+        }
+
+        /* make best path look better */
+        #best-path-placeholder {
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        /* center h1  */
+        h1 {
+            text-align: center;
+            font-size: 100px;
+        }
+
+        body {
+            background-color: #dfd7976c;
+        }
+
+
     </style>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
 </head>
@@ -75,6 +222,10 @@
         crossorigin="anonymous"></script> -->
 
     <div class="container-fluid no-padding">
+        <div class="col-12">
+            <h1>Managing traffic on emergency vehicles trips
+            </h1>
+        </div>
         <div class="row">
             <div class="col-6">
                 <div id="mapid"></div>
@@ -83,30 +234,31 @@
                 <canvas id="graph-canvas"></canvas>
             </div>
         </div>
-        <div class="row">
-            <div class="col-2">
-                <div id="connection-table-placeholder"></div> <!-- Placeholder div for the table -->
-            </div>
-            <div class="col-2">
-                <div id="pulled-over-placeholder"></div> <!-- Placeholder div for the table -->
-            </div>
-            <div class="col-2">
-                <div id="signal-group-placeholder"></div> <!-- Placeholder div for the table -->
-            </div>
-            <div class="col-4">
-                <div id="paths-table-placeholder"></div> <!-- Placeholder div for the paths table -->
+        <div class="row"style="align-items: end;">
+            <div class="col-6" >
+                <button id="start-button" onclick="startSimulation()">Start Simulation</button>
+                <button id="stop-button" onclick="stopSimulation()">Stop Simulation</button>
+                <button id="situation1-button" onclick="situation1()">Situation 1</button>
+                <button id="situation2-button" onclick="situation2()">Situation 2</button>
             </div>
             <div class="col-2">
                 <div id="best-path-placeholder"></div> <!-- Placeholder div for the best path -->
             </div>
         </div>
         <div class="row">
-            <div class="col-6">
-                <button id="start-button" onclick="startSimulation()">Start Simulation</button>
-                <button id="stop-button" onclick="stopSimulation()">Stop Simulation</button>
-                <button id="situation1-button" onclick="situation1()">Situation 1</button>
-                <button id="situation2-button" onclick="situation2()">Situation 2</button>
+            <div class="col-1">
+                <div id="connection-table-placeholder"></div> <!-- Placeholder div for the table -->
             </div>
+            <div class="col-1">
+                <div id="pulled-over-placeholder"></div> <!-- Placeholder div for the table -->
+            </div>
+            <div class="col-1">
+                <div id="signal-group-placeholder"></div> <!-- Placeholder div for the table -->
+            </div>
+            <div class="col-2">
+                <div id="paths-table-placeholder"></div> <!-- Placeholder div for the paths table -->
+            </div>
+            
         </div>
 
         <script>
@@ -176,7 +328,7 @@
                     updateInterval = setInterval(getStatus, "{{refresh_rate}}");
                 }
             }
-            
+
             function situation2() {
                 if (!simulationRunning) {
                     simulationRunning = true;
@@ -288,9 +440,9 @@
                     }
                     $('#paths-table-placeholder').html(pathsHtml);
 
-                    // Display best_path
-                    var bestPath = json[7];
-                    $('#best-path-placeholder').html(bestPath.join(' -> '));
+                    // // Display best_path
+                    // var bestPath = json[7];
+                    // $('#best-path-placeholder').html(bestPath.join(' -> '));
 
                     car_1.setLatLng([json[0]['obu1'].latitude, json[0]['obu1'].longitude]).update();
                     console.log(json[4]);
@@ -408,7 +560,7 @@
                         ctx.font = '12px Arial';
                         ctx.fillText(carName, scaledX, scaledY);
                     });
-                    
+
                     // draw the square for the ambulance
                     const [x, y] = [json[0]['obu1']['latitude'], json[0]['obu1']['longitude']];
                     const scaledX = padding + (y - minY) * scaleX;
@@ -433,10 +585,10 @@
                         const scaledX = padding + (y - minY) * scaleX;
                         const scaledY = padding + (maxX - x) * scaleY;
 
-                        
+
                         // Set the fill color based on whether the car signal_group is 2 or 5
                         ctx.fillStyle = json[5][carName] == 2 ? 'red' : 'green';
-                        
+
                         // Draw the node circle
                         ctx.beginPath();
                         ctx.arc(scaledX, scaledY + 15, 5, 0, 2 * Math.PI);
