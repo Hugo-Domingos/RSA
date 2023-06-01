@@ -308,7 +308,7 @@ class RSU:
                         {
                             "eventState":state[i],
                             "timing":{
-                                "minEndTime":28342
+                                "minEndTime":7
                             }
                         }
                     ]

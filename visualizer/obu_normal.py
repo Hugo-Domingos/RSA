@@ -33,8 +33,11 @@ class OBUNormal:
         self.obu_emergency = obu_emergency
         self.blocked = False
         self.pulled_over = False
-        self.signal_group = None
+        # self.signal_group = self.graph.edges(self.current_edge)['attr']['signalGroup']
+        self.signal_group = 5
         self.last_received_denm = None
+        self.time = 0
+        self.endtime = 0
 
     def start(self):
         client = mqtt.Client(self.name)
@@ -56,6 +59,8 @@ class OBUNormal:
             # if the last recevied denm is older than 2 seconds, then the obu is not pulled over
             if self.last_received_denm is not None and time.time() - self.last_received_denm > 5:
                 self.pulled_over = False
+            if self.time != 0 and self.time==self.endtime:
+                self.signal_group = 5
             
             # print(f"CURRENT EDGE: {self.current_edge}")
             # # get current edge id from self.graph
@@ -88,10 +93,11 @@ class OBUNormal:
                 print (state['signalGroup'])
                 if state['signalGroup'] == edges[self.current_edge]['attr']['signalGroup']:
                     if state['state-time-speed'][0]['eventState'] == 2:
-                        self.signal_group = state['signalGroup']
+                        self.signal_group = state['state-time-speed'][0]['eventState']
                         # print("OBU" + str(self.current_edge) + " -> ROSSO")
-                    else:
-                        self.signal_group = state['signalGroup']
+                        self.endtime=state['state-time-speed'][0]['timing']['minEndTime']
+                        self.time=time.time()
+                    
                         # print("OBU" + str(self.current_edge) + " -> VERDE")              
          
         # if msg_type == 'vanetza/out/cam':

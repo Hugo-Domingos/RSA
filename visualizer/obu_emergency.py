@@ -252,7 +252,7 @@ class OBUEmergency:
                 0,
                 0
             ),
-            denm.Situation(7,denm.EventType(14,14))
+            denm.Situation(7,denm.EventType(15,95))
         )
         return denm.DENM.to_dict(denm_message)
     

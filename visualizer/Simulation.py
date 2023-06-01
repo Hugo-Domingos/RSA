@@ -47,19 +47,19 @@ class Simulation:
         road11_coordinates = read_csv('coordinates/street11.csv')
         road12_coordinates = read_csv('coordinates/street12.csv')
 
-        self.graph.add_edge(0, 1, attr={'list_of_coordinates':road1_coordinates, 'distance': 120, 'id': 1,'signalGroup': 1})
-        self.graph.add_edge(1, 2, attr={'list_of_coordinates':road2_coordinates, 'distance': 200, 'id': 2 ,'signalGroup': 2})
-        self.graph.add_edge(1, 3, attr={'list_of_coordinates':road5_coordinates, 'distance': 160, 'id': 5,'signalGroup': 3})
-        self.graph.add_edge(3, 4, attr={'list_of_coordinates':road4_coordinates, 'distance': 180, 'id': 4,'signalGroup': 4})
-        self.graph.add_edge(2, 5, attr={'list_of_coordinates':road3_coordinates, 'distance': 80, 'id': 3,'signalGroup': 5})
-        self.graph.add_edge(4, 5, attr={'list_of_coordinates':road6_coordinates, 'distance': 80, 'id': 6,'signalGroup': 5})
+        self.graph.add_edge(0, 1, attr={'list_of_coordinates':road1_coordinates, 'distance': 120, 'id': 1,'signalGroup': 1,'groupValue':5})
+        self.graph.add_edge(1, 2, attr={'list_of_coordinates':road2_coordinates, 'distance': 200, 'id': 2 ,'signalGroup': 2,'groupValue':5})
+        self.graph.add_edge(1, 3, attr={'list_of_coordinates':road5_coordinates, 'distance': 160, 'id': 5,'signalGroup': 3,'groupValue':5})
+        self.graph.add_edge(3, 4, attr={'list_of_coordinates':road4_coordinates, 'distance': 180, 'id': 4,'signalGroup': 4,'groupValue':5})
+        self.graph.add_edge(2, 5, attr={'list_of_coordinates':road3_coordinates, 'distance': 80, 'id': 3,'signalGroup': 5,'groupValue':5})
+        self.graph.add_edge(4, 5, attr={'list_of_coordinates':road6_coordinates, 'distance': 80, 'id': 6,'signalGroup': 5,'groupValue':5})
 
-        self.graph.add_edge(0, 6, attr={'list_of_coordinates':road7_coordinates, 'distance': 80, 'id': 7,'signalGroup': 6})
-        self.graph.add_edge(6, 7, attr={'list_of_coordinates':road8_coordinates, 'distance': 270, 'id': 8,'signalGroup': 7})
-        self.graph.add_edge(7, 2, attr={'list_of_coordinates':road9_coordinates, 'distance': 180, 'id': 9,'signalGroup': 2})
-        self.graph.add_edge(8, 0, attr={'list_of_coordinates':road10_coordinates, 'distance': 100, 'id': 10,'signalGroup': 1})
-        self.graph.add_edge(0, 9, attr={'list_of_coordinates':road11_coordinates, 'distance': 180, 'id': 11,'signalGroup': 3})
-        self.graph.add_edge(9, 3, attr={'list_of_coordinates':road12_coordinates, 'distance': 120, 'id': 12,'signalGroup': 4})
+        self.graph.add_edge(0, 6, attr={'list_of_coordinates':road7_coordinates, 'distance': 80, 'id': 7,'signalGroup': 6,'groupValue':5})
+        self.graph.add_edge(6, 7, attr={'list_of_coordinates':road8_coordinates, 'distance': 270, 'id': 8,'signalGroup': 7,'groupValue':5})
+        self.graph.add_edge(7, 2, attr={'list_of_coordinates':road9_coordinates, 'distance': 180, 'id': 9,'signalGroup': 8,'groupValue':5})
+        self.graph.add_edge(8, 0, attr={'list_of_coordinates':road10_coordinates, 'distance': 100, 'id': 10,'signalGroup': 9,'groupValue':5})
+        self.graph.add_edge(0, 9, attr={'list_of_coordinates':road11_coordinates, 'distance': 180, 'id': 11,'signalGroup': 10,'groupValue':5})
+        self.graph.add_edge(9, 3, attr={'list_of_coordinates':road12_coordinates, 'distance': 120, 'id': 12,'signalGroup': 11,'groupValue':5})
 
         self.situation = situation
 
@@ -155,9 +155,14 @@ class Simulation:
         status = {}
         connections = {}
         pulled_over = {}
+        signal_group = {}
+
         for obu in self.normal_obus:
             status[obu.name] = {'latitude': obu.coords[0], 'longitude': obu.coords[1]}
             pulled_over[obu.id] = obu.get_pulled_over()
+            signal_group[obu.id] = obu.get_signal_group()
+
+        print(signal_group)
 
         for obu in self.special_obus:
             status[obu.name] = {'latitude': obu.coords[0], 'longitude': obu.coords[1]}
@@ -165,7 +170,8 @@ class Simulation:
         for rsu in self.rsus:
             connections = rsu.get_connected()
 
-        return status, connections, pulled_over, self.finished, self.normal_obu_coordinates
+
+        return status, connections, pulled_over, self.finished, self.normal_obu_coordinates ,signal_group
 
     def kill_simulation(self):
         for obu in self.normal_obus:
