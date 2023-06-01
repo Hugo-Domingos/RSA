@@ -2,6 +2,8 @@
 <html>
 
 <head>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css"
+        integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
     <title>Map</title>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,7 +14,17 @@
         integrity="sha256-WBkoXOwTeyKclOHuWtc+i2uENFpDZ9YPdf5Hf+D7ewM=" crossorigin=""></script>
     <style>
         #mapid {
-            height: 500px;
+            height: 800px;
+        }
+
+        #graph-canvas {
+            border: 1px solid black;
+            margin-top: 10px;
+            /* transform: rotate(-90deg); */
+        }
+
+        .no-padding {
+            padding: 0 !important;
         }
 
         .connection-sign {
@@ -52,177 +64,377 @@
 </head>
 
 <body>
-    <div id="mapid"></div>
-    <div id="connection-table-placeholder"></div> <!-- Placeholder div for the table -->
-    <div id="pulled-over-placeholder"></div> <!-- Placeholder div for the table -->
-    <div id="signal-group-placeholder"></div> <!-- Placeholder div for the table -->
-    <button id="start-button" onclick="startSimulation()">Start Simulation</button>
-    <button id="stop-button" onclick="stopSimulation()">Stop Simulation</button>
-    <button id="situation1-button" onclick="situation1()">Situation 1</button>
-    <script>
-        // initialize the map on the "map" div with a given center and zoom
-        var mymap = L.map('mapid').setView([40.63260789120826, -8.655074423121608], 16);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '&copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors',
-            maxZoom: 18,
-        }).addTo(mymap);
-        var carIcon = L.icon({
-            iconUrl: 'static/car.png',
+    <!-- <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+        integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js"
+        integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js"
+        integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+        crossorigin="anonymous"></script> -->
 
-            iconSize: [30, 30], // size of the icon
-        });
-        var ambulanceIcon = L.icon({
-            iconUrl: 'static/ambulance.png',
+    <div class="container-fluid no-padding">
+        <div class="row">
+            <div class="col-6">
+                <div id="mapid"></div>
+            </div>
+            <div class="col-6">
+                <canvas id="graph-canvas"></canvas>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-2">
+                <div id="connection-table-placeholder"></div> <!-- Placeholder div for the table -->
+            </div>
+            <div class="col-2">
+                <div id="pulled-over-placeholder"></div> <!-- Placeholder div for the table -->
+            </div>
+            <div class="col-2">
+                <div id="signal-group-placeholder"></div> <!-- Placeholder div for the table -->
+            </div>
+            <div class="col-4">
+                <div id="paths-table-placeholder"></div> <!-- Placeholder div for the paths table -->
+            </div>
+            <div class="col-2">
+                <div id="best-path-placeholder"></div> <!-- Placeholder div for the best path -->
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-6">
+                <button id="start-button" onclick="startSimulation()">Start Simulation</button>
+                <button id="stop-button" onclick="stopSimulation()">Stop Simulation</button>
+                <button id="situation1-button" onclick="situation1()">Situation 1</button>
+                <button id="situation2-button" onclick="situation2()">Situation 2</button>
+            </div>
+        </div>
 
-            iconSize: [30, 30], // size of the icon
-        });
-        var antennaIcon = L.icon({
-            iconUrl: 'static/antena.png',
+        <script>
+            // initialize the map on the "map" div with a given center and zoom
+            var mymap = L.map('mapid').setView([40.63260789120826, -8.655074423121608], 17);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors',
+                maxZoom: 18,
+            }).addTo(mymap);
+            var carIcon = L.icon({
+                iconUrl: 'static/car.png',
 
-            iconSize: [30, 30], // size of the icon
-        });
-
-        var rsu_1 = L.marker([40.6334546665471, -8.654870575236478], { icon: antennaIcon }).addTo(mymap);
-        var rsu_2 = L.marker([40.632412479977084, -8.65541774587554], { icon: antennaIcon }).addTo(mymap);
-        var rsu_3 = L.marker([40.63198986375213, -8.653578792259104], { icon: antennaIcon }).addTo(mymap);
-        var rsu_4 = L.marker([40.632942494084666, -8.653278384842281], { icon: antennaIcon }).addTo(mymap);
-
-        var car_1 = L.marker([0, 0], { icon: ambulanceIcon }).addTo(mymap);
-        car_1.bindPopup("<b>Car 1</b><br>Station Id: 5</br>",{ autoClose: false, closeOnClick: false });
-        var car_2 = L.marker([0, 0], { icon: carIcon }).addTo(mymap);
-        car_2.bindPopup("<b>Car 2</b><br>Station Id: 6</br>",{ autoClose: false, closeOnClick: false });
-        var car_3 = L.marker([0, 0], { icon: carIcon }).addTo(mymap);
-        car_3.bindPopup("<b>Car 3</b><br>Station Id: 7</br>",{ autoClose: false, closeOnClick: false });
-        var car_4 = L.marker([0, 0], { icon: carIcon }).addTo(mymap);
-        car_4.bindPopup("<b>Car 4</b><br>Station Id: 8</br>",{ autoClose: false, closeOnClick: false });
-        var car_5 = L.marker([0, 0], { icon: carIcon }).addTo(mymap);
-        car_5.bindPopup("<b>Car 5</b><br>Station Id: 9</br>",{ autoClose: false, closeOnClick: false });
-        var car_6 = L.marker([0, 0], { icon: carIcon }).addTo(mymap);
-        car_6.bindPopup("<b>Car 6</b><br>Station Id: 10</br>",{ autoClose: false, closeOnClick: false });
-
-        var simulationRunning = false;
-        var updateInterval;
-
-        function startSimulation() {
-            if (!simulationRunning) {
-                simulationRunning = true;
-                $.post('/start_simulation')
-                updateInterval = setInterval(getStatus, "{{refresh_rate}}");
-            }
-        }
-        
-        function stopSimulation() {
-            if (simulationRunning) {
-                simulationRunning = false;
-                clearInterval(updateInterval);
-                $.post('/kill_simulation')
-            }
-        }
-
-        function situation1() {
-            if (!simulationRunning) {
-                simulationRunning = true;
-                $.post('/start_simulation', { situation_id: 1 })
-                updateInterval = setInterval(getStatus, "{{refresh_rate}}");
-            }
-        }
-
-
-        function getStatus() {
-            $.getJSON('/state', function (json) {
-                simulationRunning = !json[3];
-                var connections = json[1];
-                var ids = Object.keys(connections); // Get all the IDs from the JSON data
-
-                // Generate the table structure dynamically if the JSON data is not empty
-                var tableHtml = '';
-                if (ids.length > 0) {
-                    tableHtml += '<table id="connection-table">';
-                    tableHtml += '<thead><tr><th></th>'; // Empty cell for the top-left corner
-                    for (var i = 0; i < ids.length; i++) {
-                        tableHtml += '<th>' + ids[i] + '</th>'; // Column headers based on IDs
-                    }
-                    tableHtml += '</tr></thead><tbody>';
-                    for (var i = 0; i < ids.length; i++) {
-                        var rowId = ids[i];
-                        tableHtml += '<tr><th>' + rowId + '</th>'; // Row header based on ID
-                        for (var j = 0; j < ids.length; j++) {
-                            var columnId = ids[j];
-                            var isConnected = connections[rowId][columnId];
-                            var connectionClass = isConnected ? 'connected' : 'disconnected';
-                            if (rowId === columnId) {
-                                connectionClass += ' gray'; // Add gray class for the intersection where the column ID is the same as the row ID
-                            }
-                            tableHtml += '<td><span class="connection-sign ' + connectionClass + '"></span></td>'; // Table cell with connection sign
-                        }
-                        tableHtml += '</tr>';
-                    }
-                    tableHtml += '</tbody></table>';
-                } else {
-                    tableHtml += 'No data available.'; // Display a message if the JSON data is empty
-                }
-
-                // Replace the existing table or message with the updated table structure
-                $('#connection-table-placeholder').html(tableHtml);
-
-                var pulled_over = json[2]; // {id1: false, id2: true, ...}
-                var ids = Object.keys(pulled_over); // Get all the IDs from the JSON data
-
-                
-                // Generate table with two columns [id, pulled_over]
-                var tableHtml = '';
-                if (ids.length > 0) {
-                    tableHtml += '<table id="pulled-over-table">';
-                    tableHtml += '<thead><tr><th>ID</th><th>Pulled Over</th></tr></thead><tbody>';
-                    for (var i = 0; i < ids.length; i++) {
-                        var rowId = ids[i];
-                        tableHtml += '<tr><th>' + rowId + '</th>'; // Row header based on ID
-                        var isPulledOver = pulled_over[rowId];
-                        var pulledOverClass = isPulledOver ? 'connected' : 'disconnected';
-                        tableHtml += '<td><span class="connection-sign ' + pulledOverClass + '"></span></td>'; // Table cell with connection sign
-                        tableHtml += '</tr>';
-                    }
-                    tableHtml += '</tbody></table>';
-                } else {
-                    tableHtml += 'No data available.'; // Display a message if the JSON data is empty
-                }
-
-                // Replace the existing table or message with the updated table structure
-                $('#pulled-over-placeholder').html(tableHtml);
-
-                var signal_goup = json[5];
-                var ids2 = Object.keys(signal_goup); // Get all the IDs from the JSON data
-                
-                var tableHtml = '';
-                if (ids2.length > 0) {
-                    tableHtml += '<table id="signal-group-table">';
-                    tableHtml += '<thead><tr><th>ID</th><th>Signal Group</th></tr></thead><tbody>';
-                    for (var i = 0; i < ids2.length; i++) {
-                        var rowId = ids2[i];
-                        tableHtml += '<tr><th>' + rowId + '</th>'; // Row header based on ID
-                        var signalGroup = signal_goup[rowId];
-                        tableHtml += '<td>' + signalGroup + '</td>'; // Table cell with connection sign
-                        tableHtml += '</tr>';
-                    }
-                    tableHtml += '</tbody></table>';
-                } else {
-                    tableHtml += 'No data available.'; // Display a message if the JSON data is empty
-                }
-                // Replace the existing table or message with the updated table structure
-                $('#signal-group-placeholder').html(tableHtml);
-
-
-
-
-                car_1.setLatLng([json[0]['obu1'].latitude, json[0]['obu1'].longitude]).update();
-                console.log(json[4]);
-                car_2.setLatLng(json[4][0]).update();
-                car_3.setLatLng(json[4][1]).update();
-                car_4.setLatLng(json[4][2]).update();
-                car_5.setLatLng(json[4][3]).update();
-                car_6.setLatLng(json[4][4]).update();
+                iconSize: [30, 30], // size of the icon
             });
-        }
+            var ambulanceIcon = L.icon({
+                iconUrl: 'static/ambulance.png',
+
+                iconSize: [30, 30], // size of the icon
+            });
+            var antennaIcon = L.icon({
+                iconUrl: 'static/antena.png',
+
+                iconSize: [30, 30], // size of the icon
+            });
+
+            var rsu_1 = L.marker([40.6334546665471, -8.654870575236478], { icon: antennaIcon }).addTo(mymap);
+            var rsu_2 = L.marker([40.632412479977084, -8.65541774587554], { icon: antennaIcon }).addTo(mymap);
+            var rsu_3 = L.marker([40.63198986375213, -8.653578792259104], { icon: antennaIcon }).addTo(mymap);
+            var rsu_4 = L.marker([40.632942494084666, -8.653278384842281], { icon: antennaIcon }).addTo(mymap);
+
+            var car_1 = L.marker([0, 0], { icon: ambulanceIcon }).addTo(mymap);
+            car_1.bindPopup("<b>Car 1</b><br>Station Id: 5</br>", { autoClose: false, closeOnClick: false });
+            var car_2 = L.marker([0, 0], { icon: carIcon }).addTo(mymap);
+            car_2.bindPopup("<b>Car 2</b><br>Station Id: 6</br>", { autoClose: false, closeOnClick: false });
+            var car_3 = L.marker([0, 0], { icon: carIcon }).addTo(mymap);
+            car_3.bindPopup("<b>Car 3</b><br>Station Id: 7</br>", { autoClose: false, closeOnClick: false });
+            var car_4 = L.marker([0, 0], { icon: carIcon }).addTo(mymap);
+            car_4.bindPopup("<b>Car 4</b><br>Station Id: 8</br>", { autoClose: false, closeOnClick: false });
+            var car_5 = L.marker([0, 0], { icon: carIcon }).addTo(mymap);
+            car_5.bindPopup("<b>Car 5</b><br>Station Id: 9</br>", { autoClose: false, closeOnClick: false });
+            var car_6 = L.marker([0, 0], { icon: carIcon }).addTo(mymap);
+            car_6.bindPopup("<b>Car 6</b><br>Station Id: 10</br>", { autoClose: false, closeOnClick: false });
+
+            var simulationRunning = false;
+            var updateInterval;
+
+            function startSimulation() {
+                if (!simulationRunning) {
+                    simulationRunning = true;
+                    $.post('/start_simulation')
+                    updateInterval = setInterval(getStatus, "{{refresh_rate}}");
+                }
+            }
+
+            function stopSimulation() {
+                if (simulationRunning) {
+                    simulationRunning = false;
+                    clearInterval(updateInterval);
+                    $.post('/kill_simulation')
+                }
+            }
+
+            function situation1() {
+                if (!simulationRunning) {
+                    simulationRunning = true;
+                    $.post('/start_simulation', { situation_id: 1 })
+                    updateInterval = setInterval(getStatus, "{{refresh_rate}}");
+                }
+            }
+            
+            function situation2() {
+                if (!simulationRunning) {
+                    simulationRunning = true;
+                    $.post('/start_simulation', { situation_id: 2 })
+                    updateInterval = setInterval(getStatus, "{{refresh_rate}}");
+                }
+            }
+
+            function getStatus() {
+                $.getJSON('/state', function (json) {
+                    simulationRunning = !json[3];
+                    var connections = json[1];
+                    var ids = Object.keys(connections); // Get all the IDs from the JSON data
+
+                    // Generate the table structure dynamically if the JSON data is not empty
+                    var tableHtml = '';
+                    if (ids.length > 0) {
+                        tableHtml += '<table id="connection-table">';
+                        tableHtml += '<thead><tr><th></th>'; // Empty cell for the top-left corner
+                        for (var i = 0; i < ids.length; i++) {
+                            tableHtml += '<th>' + ids[i] + '</th>'; // Column headers based on IDs
+                        }
+                        tableHtml += '</tr></thead><tbody>';
+                        for (var i = 0; i < ids.length; i++) {
+                            var rowId = ids[i];
+                            tableHtml += '<tr><th>' + rowId + '</th>'; // Row header based on ID
+                            for (var j = 0; j < ids.length; j++) {
+                                var columnId = ids[j];
+                                var isConnected = connections[rowId][columnId];
+                                var connectionClass = isConnected ? 'connected' : 'disconnected';
+                                if (rowId === columnId) {
+                                    connectionClass += ' gray'; // Add gray class for the intersection where the column ID is the same as the row ID
+                                }
+                                tableHtml += '<td><span class="connection-sign ' + connectionClass + '"></span></td>'; // Table cell with connection sign
+                            }
+                            tableHtml += '</tr>';
+                        }
+                        tableHtml += '</tbody></table>';
+                    } else {
+                        tableHtml += 'No data available.'; // Display a message if the JSON data is empty
+                    }
+
+                    // Replace the existing table or message with the updated table structure
+                    $('#connection-table-placeholder').html(tableHtml);
+
+                    var pulled_over = json[2]; // {id1: false, id2: true, ...}
+                    var ids = Object.keys(pulled_over); // Get all the IDs from the JSON data
+
+
+                    // Generate table with two columns [id, pulled_over]
+                    var tableHtml = '';
+                    if (ids.length > 0) {
+                        tableHtml += '<table id="pulled-over-table">';
+                        tableHtml += '<thead><tr><th>ID</th><th>Pulled Over</th></tr></thead><tbody>';
+                        for (var i = 0; i < ids.length; i++) {
+                            var rowId = ids[i];
+                            tableHtml += '<tr><th>' + rowId + '</th>'; // Row header based on ID
+                            var isPulledOver = pulled_over[rowId];
+                            var pulledOverClass = isPulledOver ? 'connected' : 'disconnected';
+                            tableHtml += '<td><span class="connection-sign ' + pulledOverClass + '"></span></td>'; // Table cell with connection sign
+                            tableHtml += '</tr>';
+                        }
+                        tableHtml += '</tbody></table>';
+                    } else {
+                        tableHtml += 'No data available.'; // Display a message if the JSON data is empty
+                    }
+
+                    // Replace the existing table or message with the updated table structure
+                    $('#pulled-over-placeholder').html(tableHtml);
+
+                    var signal_goup = json[5];
+                    var ids2 = Object.keys(signal_goup); // Get all the IDs from the JSON data
+
+                    var tableHtml = '';
+                    if (ids2.length > 0) {
+                        tableHtml += '<table id="signal-group-table">';
+                        tableHtml += '<thead><tr><th>ID</th><th>Signal Group</th></tr></thead><tbody>';
+                        for (var i = 0; i < ids2.length; i++) {
+                            var rowId = ids2[i];
+                            tableHtml += '<tr><th>' + rowId + '</th>'; // Row header based on ID
+                            var signalGroup = signal_goup[rowId];
+                            tableHtml += '<td>' + signalGroup + '</td>'; // Table cell with connection sign
+                            tableHtml += '</tr>';
+                        }
+                        tableHtml += '</tbody></table>';
+                    } else {
+                        tableHtml += 'No data available.'; // Display a message if the JSON data is empty
+                    }
+                    // Replace the existing table or message with the updated table structure
+                    $('#signal-group-placeholder').html(tableHtml);
+
+                    // Display paths_table
+                    var pathsTable = json[6];
+                    var pathsHtml = '';
+                    if (Object.keys(pathsTable).length > 0) {
+                        pathsHtml += '<table id="paths-table">';
+                        pathsHtml += '<thead><tr><th>Path</th><th>Total Distance</th><th>Total Cars</th><th>Hybrid Punctuation</th></tr></thead><tbody>';
+                        for (var path in pathsTable) {
+                            pathsHtml += '<tr>';
+                            pathsHtml += '<td>' + path + '</td>';
+                            pathsHtml += '<td>' + pathsTable[path].total_distance + '</td>';
+                            pathsHtml += '<td>' + pathsTable[path].total_cars + '</td>';
+                            pathsHtml += '<td>' + pathsTable[path].hybrid_punctuation + '</td>';
+                            pathsHtml += '</tr>';
+                        }
+                        pathsHtml += '</tbody></table>';
+                    } else {
+                        pathsHtml += 'No data available.';
+                    }
+                    $('#paths-table-placeholder').html(pathsHtml);
+
+                    // Display best_path
+                    var bestPath = json[7];
+                    $('#best-path-placeholder').html(bestPath.join(' -> '));
+
+                    car_1.setLatLng([json[0]['obu1'].latitude, json[0]['obu1'].longitude]).update();
+                    console.log(json[4]);
+                    car_2.setLatLng(json[4][0]).update();
+                    car_3.setLatLng(json[4][1]).update();
+                    car_4.setLatLng(json[4][2]).update();
+                    car_5.setLatLng(json[4][3]).update();
+                    car_6.setLatLng(json[4][4]).update();
+
+                    ////////////////////////////////////////////////////////////////////////////////////
+
+                    var greenNodes = json[7]; // Assuming json[9] is an array of node IDs to be colored green
+
+                    // Get the graph data from the JSON response
+                    var graphData = json[8];
+
+                    // Get the canvas element and its 2D context
+                    var canvas = document.getElementById('graph-canvas');
+                    var ctx = canvas.getContext('2d');
+
+                    // Clear the canvas
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                    // Set the canvas size to match the container div
+                    canvas.width = 800;
+                    canvas.height = 800; // Adjust the height as needed
+
+                    // Calculate the minimum and maximum coordinates of the graph nodes
+                    var minX = Infinity;
+                    var minY = Infinity;
+                    var maxX = -Infinity;
+                    var maxY = -Infinity;
+
+                    Object.values(graphData).forEach(node => {
+                        const [x, y] = node.coords;
+                        minX = Math.min(minX, x);
+                        minY = Math.min(minY, y);
+                        maxX = Math.max(maxX, x);
+                        maxY = Math.max(maxY, y);
+                    });
+
+                    // Calculate the scaling factors for the coordinates with padding
+                    const padding = 50;
+                    const canvasWidth = canvas.width - padding * 2;
+                    const canvasHeight = canvas.height - padding * 2;
+                    // const scaleX = canvasWidth / (maxX - minX);
+                    // const scaleY = canvasHeight / (maxY - minY);
+                    const scaleX = canvasWidth / (maxY - minY);
+                    const scaleY = canvasHeight / (maxX - minX);
+
+
+                    // Draw the graph nodes and edges
+                    Object.entries(graphData).forEach(([nodeName, node]) => {
+                        const [x, y] = node.coords;
+
+                        // Scale the coordinates to fit within the canvas with padding
+                        // const scaledX = padding + (x - minX) * scaleX;
+                        // const scaledY = padding + (y - minY) * scaleY;
+
+                        const scaledX = padding + (y - minY) * scaleX;
+                        const scaledY = padding + (maxX - x) * scaleY;
+
+
+                        // Set the fill color based on whether the node is in the greenNodes array or not
+                        ctx.fillStyle = greenNodes.includes(parseInt(nodeName)) ? 'blue' : 'grey';
+
+                        // Draw the node circle
+                        ctx.beginPath();
+                        ctx.arc(scaledX, scaledY, 20, 0, 2 * Math.PI);
+                        ctx.fill();
+                        ctx.stroke();
+
+                        ctx.fillStyle = 'black';
+                        ctx.font = '12px Arial';
+                        // increase the fillTest size
+                        ctx.fillText(nodeName, scaledX - 20, scaledY - 25, 40);
+
+                        // Draw the edges
+                        Object.values(node.connections).forEach(connection => {
+                            const [cx, cy] = connection;
+
+                            // Scale the coordinates of the connection with padding
+                            // const scaledCX = padding + (cx - minX) * scaleX;
+                            // const scaledCY = padding + (cy - minY) * scaleY;
+                            const scaledCX = padding + (cy - minY) * scaleX;
+                            const scaledCY = padding + (maxX - cx) * scaleY;
+
+                            ctx.beginPath();
+                            ctx.moveTo(scaledX, scaledY);
+                            ctx.lineTo(scaledCX, scaledCY);
+                            ctx.stroke();
+                        });
+                    });
+
+                    // Draw the cars as squares in the canvas
+                    Object.entries(json[4]).forEach(([carName, car]) => {
+                        const [x, y] = car;
+
+                        carName = parseInt(carName) + 6;
+                        // Scale the coordinates to fit within the canvas with padding
+                        // const scaledX = padding + (x - minX) * scaleX;
+                        // const scaledY = padding + (y - minY) * scaleY;
+                        const scaledX = padding + (y - minY) * scaleX;
+                        const scaledY = padding + (maxX - x) * scaleY;
+
+                        // Set the fill color based on whether the car on pulled over is true or not
+                        // ctx.fillStyle = carName == 6 ? 'red' : 'green';
+                        ctx.fillStyle = json[2][carName] ? 'red' : 'green';
+
+                        // Draw the node circle
+                        ctx.fillRect(scaledX - 10, scaledY - 10, 20, 20);
+                        ctx.stroke();
+
+                        ctx.fillStyle = 'black';
+                        ctx.font = '12px Arial';
+                        ctx.fillText(carName, scaledX, scaledY);
+                    });
+                    
+                    // Draw the cars as squares in the canvas
+                    Object.entries(json[4]).forEach(([carName, car]) => {
+                        const [x, y] = car;
+                        console.log(carName);
+                        console.log(car);
+                        console.log(json[5]);
+                        carName = parseInt(carName) + 6;
+                        // Scale the coordinates to fit within the canvas with padding
+                        // const scaledX = padding + (x - minX) * scaleX;
+                        // const scaledY = padding + (y - minY) * scaleY;
+                        const scaledX = padding + (y - minY) * scaleX;
+                        const scaledY = padding + (maxX - x) * scaleY;
+
+                        
+                        // Set the fill color based on whether the car signal_group is 2 or 5
+                        ctx.fillStyle = json[5][carName] == 2 ? 'red' : 'green';
+                        
+                        // Draw the node circle
+                        ctx.beginPath();
+                        ctx.arc(scaledX, scaledY + 15, 5, 0, 2 * Math.PI);
+                        ctx.fill();
+                        ctx.stroke();
+                    });
+
+                });
+            }
 
 
 
@@ -233,7 +445,7 @@
         //     $.post('/kill_simulation')
         // }
 
-    </script>
+        </script>
 </body>
 
 </html>

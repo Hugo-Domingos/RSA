@@ -10,6 +10,10 @@ import math
 import networkx as nx
 import json
 
+total_distance = {}
+total_cars = {}
+hybrid_punctuation = {}
+
 class OBUEmergency:
     def __init__(self, name, id, address, mac_address, obu, special_vehicle, coords, current_edge, graph):
         self.name = name
@@ -95,6 +99,7 @@ class OBUEmergency:
         self.coords = None
 
     def best_hybrid(self, destination_node):
+        global total_distance, total_cars, hybrid_punctuation
         # construct dict with the id of the lanes as keys and the number of cars on the lane as values
         number_of_cars_on_lane = {}
         for lane_id in self.cars_on_lane:
@@ -272,6 +277,18 @@ class OBUEmergency:
 
     def get_coords(self):
         return self.coords
+    
+    def get_total_distance(self):
+        global total_distance
+        return total_distance
+    
+    def get_total_cars(self):
+        global total_cars
+        return total_cars
+    
+    def get_hybrid_punctuation(self):
+        global hybrid_punctuation
+        return hybrid_punctuation
     
     def has_finished(self):
         return self.finished

@@ -23,16 +23,16 @@ class Simulation:
 
         self.graph = nx.DiGraph()
 
-        self.graph.add_node(0, attr={'latitude': 40.630573087421965, 'longitude': -8.654125928878786, 'connections': {1: (40.63162344496743, -8.654608726501467), 3: (40.63162344496743, -8.654597997665407), 6: (40.6300466215235, -8.654799637383748), 9: (40.631306540191524, -8.652005912660032)}})
-        self.graph.add_node(1, attr={'latitude': 40.63162344496743, 'longitude': -8.654608726501467, 'connections': {2: (40.63327629974076, -8.655552864074709)}})
+        self.graph.add_node(0, attr={'latitude': 40.630573087421965, 'longitude': -8.654125928878786, 'connections': {1: (40.63162344496743, -8.654608726501467), 6: (40.6300466215235, -8.654799637383748), 9: (40.631306540191524, -8.652005912660032)}})
+        self.graph.add_node(1, attr={'latitude': 40.63162344496743, 'longitude': -8.654608726501467, 'connections': {2: (40.63327629974076, -8.655552864074709), 3: (40.63222490781146, -8.65287555130587)}})
         self.graph.add_node(2, attr={'latitude': 40.63327629974076, 'longitude': -8.655552864074709, 'connections': {5: (40.63349808896788,-8.654745741573835)}})
-        self.graph.add_node(3, attr={'latitude': 40.63162344496743, 'longitude': -8.654597997665407, 'connections': {4: (40.63367391921257, -8.653817896059198)}})
+        self.graph.add_node(3, attr={'latitude': 40.63222490781146, 'longitude': -8.65287555130587, 'connections': {1: (40.63162344496743, -8.654608726501467), 4: (40.63367391921257, -8.653817896059198)}})
         self.graph.add_node(4, attr={'latitude': 40.63367391921257, 'longitude': -8.653817896059198, 'connections': {5: (40.63349808896788,-8.654745741573835)}})
         self.graph.add_node(5, attr={'latitude': 40.63349808896788, 'longitude': -8.654745741573835, 'connections': {}})
         self.graph.add_node(6, attr={'latitude': 40.6300466215235, 'longitude': -8.654799637383748, 'connections': {7: (40.63187020342297,-8.657101544495264)}})
         self.graph.add_node(7, attr={'latitude': 40.63187020342297, 'longitude': -8.657101544495264, 'connections': {2: (40.63327629974076, -8.655552864074709)}})
         self.graph.add_node(8, attr={'latitude': 40.62975477416346, 'longitude': -8.653675317764284, 'connections': {0: (40.630573087421965, -8.654125928878786)}})
-        self.graph.add_node(9, attr={'latitude': 40.631306540191524, 'longitude': -8.652005912660032, 'connections': {3: (40.63162344496743, -8.654597997665407)}})
+        self.graph.add_node(9, attr={'latitude': 40.631306540191524, 'longitude': -8.652005912660032, 'connections': {3: (40.63222490781146, -8.65287555130587)}})
 
         road1_coordinates = read_csv('coordinates/street1.csv')
         road2_coordinates = read_csv('coordinates/street2.csv')
@@ -46,10 +46,12 @@ class Simulation:
         road10_coordinates = read_csv('coordinates/street10.csv')
         road11_coordinates = read_csv('coordinates/street11.csv')
         road12_coordinates = read_csv('coordinates/street12.csv')
+        road13_coordinates = read_csv('coordinates/street13.csv')
 
         self.graph.add_edge(0, 1, attr={'list_of_coordinates':road1_coordinates, 'distance': 120, 'id': 1,'signalGroup': 1,'groupValue':5})
         self.graph.add_edge(1, 2, attr={'list_of_coordinates':road2_coordinates, 'distance': 200, 'id': 2 ,'signalGroup': 2,'groupValue':5})
         self.graph.add_edge(1, 3, attr={'list_of_coordinates':road5_coordinates, 'distance': 160, 'id': 5,'signalGroup': 3,'groupValue':5})
+        self.graph.add_edge(3, 1, attr={'list_of_coordinates':road13_coordinates, 'distance': 160, 'id': 13,'signalGroup': 3,'groupValue':5})
         self.graph.add_edge(3, 4, attr={'list_of_coordinates':road4_coordinates, 'distance': 180, 'id': 4,'signalGroup': 4,'groupValue':5})
         self.graph.add_edge(2, 5, attr={'list_of_coordinates':road3_coordinates, 'distance': 80, 'id': 3,'signalGroup': 5,'groupValue':5})
         self.graph.add_edge(4, 5, attr={'list_of_coordinates':road6_coordinates, 'distance': 80, 'id': 6,'signalGroup': 5,'groupValue':5})
@@ -87,8 +89,16 @@ class Simulation:
             self.normal_obu_edges = []
             self.normal_obu_coordinates = []
             for i in range(n):
-                self.normal_obu_edges.append(random.choice(list(self.graph.edges)))
-                self.normal_obu_coordinates.append(random.choice(self.graph.edges[self.normal_obu_edges[i]]['attr']['list_of_coordinates']))
+                # chose a random edge from the graph except the edge (8, 0)
+                choice = random.choice(list(self.graph.edges))
+                while choice == (8, 0):
+                    choice = random.choice(list(self.graph.edges))
+                self.normal_obu_edges.append(choice)
+                # chose a random coordinate from the list of coordinates of the edge that was not chosen before and that is not the first neither the last coordinate of the edge
+                coords_choice = random.choice(self.graph.edges[choice]['attr']['list_of_coordinates'][1:-1])
+                while coords_choice in self.normal_obu_coordinates:
+                    coords_choice = random.choice(self.graph.edges[choice]['attr']['list_of_coordinates'][1:-1])
+                self.normal_obu_coordinates.append(coords_choice)
 
             self.normal_obus.append(OBUNormal('obu2', 6, '192.168.98.16', '6e:06:e0:03:00:06', 'obu2', 0, self.normal_obu_coordinates[0], self.normal_obu_edges[0], graph=self.graph, obu_emergency=self.special_obus[0]))
             self.normal_obus.append(OBUNormal('obu3', 7, '192.168.98.17', '6e:06:e0:03:00:07', 'obu3', 0, self.normal_obu_coordinates[1], self.normal_obu_edges[1], graph=self.graph, obu_emergency=self.special_obus[0]))
@@ -106,6 +116,23 @@ class Simulation:
             self.normal_obu_coordinates.append([40.63244672479915,-8.655085632274792])
             self.normal_obu_coordinates.append([40.630904133350626,-8.654311403031949])
             self.normal_obu_coordinates.append([40.63123517927929,-8.654496877185112])
+            self.normal_obus.append(OBUNormal('obu2', 6, '192.168.98.16', '6e:06:e0:03:00:06', 'obu2', 0, self.normal_obu_coordinates[0], self.normal_obu_edges[0], graph=self.graph, obu_emergency=self.special_obus[0]))
+            self.normal_obus.append(OBUNormal('obu3', 7, '192.168.98.17', '6e:06:e0:03:00:07', 'obu3', 0, self.normal_obu_coordinates[1], self.normal_obu_edges[1], graph=self.graph, obu_emergency=self.special_obus[0]))
+            self.normal_obus.append(OBUNormal('obu4', 8, '192.168.98.18', '6e:06:e0:03:00:08', 'obu4', 0, self.normal_obu_coordinates[2], self.normal_obu_edges[2], graph=self.graph, obu_emergency=self.special_obus[0]))
+            self.normal_obus.append(OBUNormal('obu5', 9, '192.168.98.19', '6e:06:e0:03:00:09', 'obu5', 0, self.normal_obu_coordinates[3], self.normal_obu_edges[3], graph=self.graph, obu_emergency=self.special_obus[0]))
+            self.normal_obus.append(OBUNormal('obu6', 10, '192.168.98.20', '6e:06:e0:03:00:10', 'obu6', 0, self.normal_obu_coordinates[4], self.normal_obu_edges[4], graph=self.graph, obu_emergency=self.special_obus[0]))
+        elif self.situation == 2:
+            self.normal_obu_edges = []
+            self.normal_obu_coordinates = []
+            self.normal_obu_edges = [(3,4) for i in range(2)]
+            self.normal_obu_edges.append((0,1))
+            self.normal_obu_edges.append((0,1))
+            self.normal_obu_edges.append((6,7))
+            self.normal_obu_coordinates.append([40.632719474758346,-8.653154215551432])
+            self.normal_obu_coordinates.append([40.63335577106116,-8.653596669223276])
+            self.normal_obu_coordinates.append([40.63256040068264,-8.65304360213347])
+            self.normal_obu_coordinates.append([40.630904133350626,-8.654311403031949])
+            self.normal_obu_coordinates.append([40.63108398287046,-8.656127454414731])
             self.normal_obus.append(OBUNormal('obu2', 6, '192.168.98.16', '6e:06:e0:03:00:06', 'obu2', 0, self.normal_obu_coordinates[0], self.normal_obu_edges[0], graph=self.graph, obu_emergency=self.special_obus[0]))
             self.normal_obus.append(OBUNormal('obu3', 7, '192.168.98.17', '6e:06:e0:03:00:07', 'obu3', 0, self.normal_obu_coordinates[1], self.normal_obu_edges[1], graph=self.graph, obu_emergency=self.special_obus[0]))
             self.normal_obus.append(OBUNormal('obu4', 8, '192.168.98.18', '6e:06:e0:03:00:08', 'obu4', 0, self.normal_obu_coordinates[2], self.normal_obu_edges[2], graph=self.graph, obu_emergency=self.special_obus[0]))
@@ -156,22 +183,46 @@ class Simulation:
         connections = {}
         pulled_over = {}
         signal_group = {}
+        paths_table = {}
+        best_path = {}
 
         for obu in self.normal_obus:
             status[obu.name] = {'latitude': obu.coords[0], 'longitude': obu.coords[1]}
             pulled_over[obu.id] = obu.get_pulled_over()
             signal_group[obu.id] = obu.get_signal_group()
 
-        print(signal_group)
-
         for obu in self.special_obus:
             status[obu.name] = {'latitude': obu.coords[0], 'longitude': obu.coords[1]}
+            total_distance = obu.get_total_distance()
+            total_cars = obu.get_total_cars()
+            hybrid_punctuation = obu.get_hybrid_punctuation()
+            best_path = obu.best_path
+
+            for path in hybrid_punctuation:
+                paths_table[path] = {
+                    'total_distance' : total_distance[path],
+                    'total_cars' : total_cars[path],
+                    'hybrid_punctuation' : hybrid_punctuation[path]
+                }
 
         for rsu in self.rsus:
             connections = rsu.get_connected()
 
 
-        return status, connections, pulled_over, self.finished, self.normal_obu_coordinates ,signal_group
+        return status, connections, pulled_over, self.finished, self.normal_obu_coordinates ,signal_group, paths_table, best_path, self.graph_representation()
+    
+    def graph_representation(self):
+        # initialize graph representation with node as key and attributes as value
+        graph_representation = {}
+        for node in self.graph.nodes:
+            graph_representation[node] = {'coords': [self.graph.nodes[node]['attr']['latitude'], self.graph.nodes[node]['attr']['longitude']], 'connections': self.graph.nodes[node]['attr']['connections']}
+
+
+        # print(self.graph.nodes)
+        # print(nx.get_node_attributes(self.graph, 'attr'))
+
+        print(graph_representation)
+        return graph_representation
 
     def kill_simulation(self):
         for obu in self.normal_obus:
