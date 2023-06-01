@@ -141,9 +141,9 @@ class Simulation:
             
 
         self.rsus.append(RSU('rsu1', 1, '192.168.98.11', '6e:06:e0:03:00:01', 'rsu1', [40.6334546665471, -8.654870575236478], special_vehicle=self.special_obus[0], current_edge=(4, 5), graph=self.graph, normal_obu_coordinates=self.normal_obu_coordinates))
-        # self.rsus.append(RSU('rsu2', 2, '192.168.98.12', '6e:06:e0:03:00:02', 'rsu2', [40.632412479977084, -8.65541774587554], special_vehicle=self.special_obus[0]))
-        # self.rsus.append(RSU('rsu3', 3, '192.168.98.13', '6e:06:e0:03:00:03', 'rsu3', [40.63198986375213, -8.653578792259104], special_vehicle=self.special_obus[0]))
-        # self.rsus.append(RSU('rsu4', 4, '192.168.98.14', '6e:06:e0:03:00:04', 'rsu4', [40.632942494084666, -8.653278384842281], special_vehicle=self.special_obus[0]))
+        self.rsus.append(RSU('rsu2', 2, '192.168.98.12', '6e:06:e0:03:00:02', 'rsu2', [40.632412479977084, -8.65541774587554], special_vehicle=self.special_obus[0], current_edge=(1, 2), graph=self.graph, normal_obu_coordinates=self.normal_obu_coordinates))
+        self.rsus.append(RSU('rsu3', 3, '192.168.98.13', '6e:06:e0:03:00:03', 'rsu3', [40.63198986375213, -8.653578792259104], special_vehicle=self.special_obus[0], current_edge=(1, 3), graph=self.graph, normal_obu_coordinates=self.normal_obu_coordinates))
+        self.rsus.append(RSU('rsu4', 4, '192.168.98.14', '6e:06:e0:03:00:04', 'rsu4', [40.632942494084666, -8.653278384842281], special_vehicle=self.special_obus[0], current_edge=(3, 4), graph=self.graph, normal_obu_coordinates=self.normal_obu_coordinates))
 
         rsu_threads = []
         for i in range(0, len(self.rsus)):
@@ -205,10 +205,7 @@ class Simulation:
                     'hybrid_punctuation' : hybrid_punctuation[path]
                 }
 
-        for rsu in self.rsus:
-            connections = rsu.get_connected()
-
-
+        connections = self.rsus[0].get_connected()
         return status, connections, pulled_over, self.finished, self.normal_obu_coordinates ,signal_group, paths_table, best_path, self.graph_representation()
     
     def graph_representation(self):

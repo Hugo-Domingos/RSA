@@ -177,10 +177,11 @@ class RSU:
             # print(f"OUT CAM -> RSU: {self.name} | stationID: {message['stationID']} | MSG: {message}\n")
             if self.id == 1 and message['stationID'] in self.received_obu_coordinates.keys():
                 self.received_obu_coordinates[message['stationID']]['coords'] = [message['latitude'], message['longitude']]
-
-            if message['stationType'] == 10:
+            
+        if msg_type == 'vanetza/out/denm':
+            if message['fields']['denm']['situation']['eventType']['causeCode'] == 15:
                 #get the edge of the ambulance
-                self.get_ambulance_edge([(message['latitude'], message['longitude'])])
+                self.get_ambulance_edge([(message['fields']['denm']['management']['eventPosition']['latitude'], message['fields']['denm']['management']['eventPosition']['longitude'])])
                 #send spatem message to the obus
                 #get other edges that goes to the end node of the ambulance edge
                 
