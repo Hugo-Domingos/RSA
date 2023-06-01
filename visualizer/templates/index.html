@@ -409,6 +409,17 @@
                         ctx.fillText(carName, scaledX, scaledY);
                     });
                     
+                    // draw the square for the ambulance
+                    const [x, y] = [json[0]['obu1']['latitude'], json[0]['obu1']['longitude']];
+                    const scaledX = padding + (y - minY) * scaleX;
+                    const scaledY = padding + (maxX - x) * scaleY;
+                    ctx.fillStyle = 'yellow';
+                    ctx.fillRect(scaledX - 10, scaledY - 10, 20, 20);
+                    ctx.stroke();
+                    ctx.fillStyle = 'black';
+                    ctx.font = '12px Arial';
+                    ctx.fillText('1', scaledX, scaledY);
+
                     // Draw the cars as squares in the canvas
                     Object.entries(json[4]).forEach(([carName, car]) => {
                         const [x, y] = car;
