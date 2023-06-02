@@ -101,7 +101,8 @@ class OBUNormal:
                         # self.endtime=state['state-time-speed'][0]['timing']['minEndTime']
                         # self.time=time.time()
                         self.last_received_spatem = message['timestamp']
-                    
+                    elif state['state-time-speed'][0]['eventState'] == 5:
+                        self.signal_group = state['state-time-speed'][0]['eventState']
                         # print("OBU" + str(self.current_edge) + " -> VERDE")              
          
         # if msg_type == 'vanetza/out/cam':
