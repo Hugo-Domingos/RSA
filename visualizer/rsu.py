@@ -193,7 +193,7 @@ class RSU:
                 states=[]
                 states.append(5)
                 for edge in graph_edges:
-                    if edge[0] == self.ambulance_edge[1] and edge not in egdes:
+                    if (edge[0] == self.ambulance_edge[1] or edge[1] == self.ambulance_edge[1]) and edge not in egdes:
                         # print("edge",edge)
                         egdes.append(self.graph.edges[edge]['attr']['signalGroup'])
                         states.append(2)
