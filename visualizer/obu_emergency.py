@@ -37,7 +37,6 @@ class OBUEmergency:
         for edge in self.graph.edges():
             id = self.graph.get_edge_data(*edge)['attr']['id']
             self.cars_on_lane[id] = []
-        self.best_hybrid(5)
 
     def start(self):
         client = mqtt.Client(self.name)
@@ -47,6 +46,7 @@ class OBUEmergency:
         client.subscribe(topic=[("vanetza/out/cam", 0)])
         client.loop_start()
         time.sleep(10)
+        self.best_hybrid(5)
         while not self.finished:
             cam_message = self.generate_cam()
             self.send_message('vanetza/in/cam', cam_message)

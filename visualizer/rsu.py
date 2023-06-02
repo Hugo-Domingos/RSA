@@ -236,7 +236,7 @@ class RSU:
             0,
             True,
             self.id,
-            15,
+            5,
             self.width,
             0
         )
