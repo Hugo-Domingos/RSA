@@ -188,7 +188,7 @@ class Simulation:
             status[obu.name] = {'latitude': obu.coords[0], 'longitude': obu.coords[1]}
             pulled_over[obu.id] = obu.get_pulled_over()
             signal_group[obu.id] = obu.get_signal_group()
-            print(f"OBU {obu.id} -> {obu.get_signal_group()}")
+            # print(f"OBU {obu.id} -> {obu.get_signal_group()}")
 
         for obu in self.special_obus:
             status[obu.name] = {'latitude': obu.coords[0], 'longitude': obu.coords[1]}
