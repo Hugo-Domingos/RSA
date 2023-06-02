@@ -184,7 +184,7 @@ class RSU:
                 self.get_ambulance_edge([(message['fields']['denm']['management']['eventPosition']['latitude'], message['fields']['denm']['management']['eventPosition']['longitude'])])
                 #send spatem message to the obus
                 #get other edges that goes to the end node of the ambulance edge
-                
+                print("AMBULANCE IS IN EDGE"+str(self.ambulance_edge))
                 #check the conections of the node of the ambulance edge
                 graph_edges = self.graph.edges()
                 egdes=[]
@@ -193,10 +193,12 @@ class RSU:
                 states=[]
                 states.append(5)
                 for edge in graph_edges:
-                    if (edge[0] == self.ambulance_edge[1] or edge[1] == self.ambulance_edge[1]) and edge not in egdes:
+                    if (edge[0] == self.ambulance_edge[1] or edge[1] == self.ambulance_edge[1]) and self.graph.edges[edge]['attr']['signalGroup'] not in egdes:
                         # print("edge",edge)
                         egdes.append(self.graph.edges[edge]['attr']['signalGroup'])
                         states.append(2)
+                print("edges",egdes)
+                print("states",states)
 
                 spatem_message = self.generate_spatem(1,states,egdes)
                 self.send_message('vanetza/in/spatem', spatem_message)
