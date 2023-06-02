@@ -62,7 +62,7 @@ class OBUEmergency:
             if self.finished:
                 break
             self.coords = self.get_next_coords()
-            time.sleep(3)
+            time.sleep(2)
         
         # end the client
         client.loop_stop()
