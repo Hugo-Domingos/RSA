@@ -50,7 +50,7 @@ class Simulation:
         self.graph.add_edge(0, 1, attr={'list_of_coordinates':road1_coordinates, 'distance': 120, 'id': 1,'signalGroup': 1})
         self.graph.add_edge(1, 2, attr={'list_of_coordinates':road2_coordinates, 'distance': 200, 'id': 2 ,'signalGroup': 2})
         self.graph.add_edge(1, 3, attr={'list_of_coordinates':road5_coordinates, 'distance': 160, 'id': 5,'signalGroup': 3,})
-        # self.graph.add_edge(3, 1, attr={'list_of_coordinates':road13_coordinates, 'distance': 160, 'id': 13,'signalGroup': 3})
+        self.graph.add_edge(3, 1, attr={'list_of_coordinates':road13_coordinates, 'distance': 160, 'id': 13,'signalGroup': 3})
         self.graph.add_edge(3, 4, attr={'list_of_coordinates':road4_coordinates, 'distance': 180, 'id': 4,'signalGroup': 4})
         self.graph.add_edge(2, 5, attr={'list_of_coordinates':road3_coordinates, 'distance': 80, 'id': 3,'signalGroup': 5})
         self.graph.add_edge(4, 5, attr={'list_of_coordinates':road6_coordinates, 'distance': 80, 'id': 6,'signalGroup': 5})
