@@ -13,7 +13,6 @@
     <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"
         integrity="sha256-WBkoXOwTeyKclOHuWtc+i2uENFpDZ9YPdf5Hf+D7ewM=" crossorigin=""></script>
     <style>
-
         #mapid {
             height: 800px;
             margin-top: 10px;
@@ -22,7 +21,7 @@
         }
 
         #graph-canvas {
-            border: 1px solid black;
+            /* border: 1px solid black; */
             margin-top: 10px;
         }
 
@@ -65,26 +64,27 @@
         }
 
         #connection-table th {
-            background-color: #dfd7976c;
+            background-color: #57b0d3;
+            color: black;
         }
 
-        #pulled-over-table th
-        {
-            background-color: #dfd7976c;
-
-        }
         #pulled-over-table {
             width: auto;
             margin-top: 10px;
             border-collapse: collapse;
         }
-        #pulled-over-table th,
+
         #pulled-over-table td {
             padding: 5px;
             text-align: center;
             border: 1px solid black;
         }
-
+        
+        #pulled-over-table th {
+            border: 1px solid black;
+            background-color: #57b0d3;
+            color: black;
+        }
 
         #signal-group-table {
             width: auto;
@@ -100,7 +100,8 @@
         }
 
         #signal-group-table th {
-            background-color: #dfd7976c;
+            background-color: #57b0d3;
+            color: black;
         }
 
         #paths-table {
@@ -117,7 +118,8 @@
         }
 
         #paths-table th {
-            background-color: #dfd7976c;
+            background-color: #57b0d3;
+            color: black;
         }
 
         #best-path-table {
@@ -135,7 +137,8 @@
         }
 
         #best-path-table th {
-            background-color: #dfd7976c;
+            background-color: #57b0d3;
+            color: black;
         }
 
         #start-button {
@@ -202,10 +205,9 @@
         }
 
         body {
-            background-color: #dfd7976c;
+            background-color: #222;
+            color: #fff;
         }
-
-
     </style>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
 </head>
@@ -234,8 +236,8 @@
                 <canvas id="graph-canvas"></canvas>
             </div>
         </div>
-        <div class="row"style="align-items: end;">
-            <div class="col-6" >
+        <div class="row" style="align-items: end;">
+            <div class="col-6">
                 <button id="start-button" onclick="startSimulation()">Start Simulation</button>
                 <button id="stop-button" onclick="stopSimulation()">Stop Simulation</button>
                 <button id="situation1-button" onclick="situation1()">Situation 1</button>
@@ -258,7 +260,7 @@
             <div class="col-2">
                 <div id="paths-table-placeholder"></div> <!-- Placeholder div for the paths table -->
             </div>
-            
+
         </div>
 
         <script>
@@ -493,48 +495,50 @@
                     const scaleX = canvasWidth / (maxY - minY);
                     const scaleY = canvasHeight / (maxX - minX);
 
-
+                    
                     // Draw the graph nodes and edges
                     Object.entries(graphData).forEach(([nodeName, node]) => {
                         const [x, y] = node.coords;
 
+                        
                         // Scale the coordinates to fit within the canvas with padding
                         // const scaledX = padding + (x - minX) * scaleX;
                         // const scaledY = padding + (y - minY) * scaleY;
-
+                        
                         const scaledX = padding + (y - minY) * scaleX;
                         const scaledY = padding + (maxX - x) * scaleY;
-
+                        
+                        // Draw the edges in white
+                        Object.values(node.connections).forEach(connection => {
+                            const [cx, cy] = connection;
+    
+                            // Scale the coordinates of the connection with padding
+                            // const scaledCX = padding + (cx - minX) * scaleX;
+                            // const scaledCY = padding + (cy - minY) * scaleY;
+                            const scaledCX = padding + (cy - minY) * scaleX;
+                            const scaledCY = padding + (maxX - cx) * scaleY;
+    
+                            ctx.beginPath();
+                            ctx.moveTo(scaledX, scaledY);
+                            ctx.lineTo(scaledCX, scaledCY);
+                            ctx.strokeStyle = 'white';
+                            ctx.stroke();
+                        });
 
                         // Set the fill color based on whether the node is in the greenNodes array or not
                         ctx.fillStyle = greenNodes.includes(parseInt(nodeName)) ? 'blue' : 'grey';
 
                         // Draw the node circle
                         ctx.beginPath();
-                        ctx.arc(scaledX, scaledY, 20, 0, 2 * Math.PI);
+                        ctx.arc(scaledX, scaledY, 30, 0, 2 * Math.PI);
                         ctx.fill();
                         ctx.stroke();
 
-                        ctx.fillStyle = 'black';
-                        ctx.font = '12px Arial';
-                        // increase the fillTest size
-                        ctx.fillText(nodeName, scaledX - 20, scaledY - 25, 40);
-
-                        // Draw the edges
-                        Object.values(node.connections).forEach(connection => {
-                            const [cx, cy] = connection;
-
-                            // Scale the coordinates of the connection with padding
-                            // const scaledCX = padding + (cx - minX) * scaleX;
-                            // const scaledCY = padding + (cy - minY) * scaleY;
-                            const scaledCX = padding + (cy - minY) * scaleX;
-                            const scaledCY = padding + (maxX - cx) * scaleY;
-
-                            ctx.beginPath();
-                            ctx.moveTo(scaledX, scaledY);
-                            ctx.lineTo(scaledCX, scaledCY);
-                            ctx.stroke();
-                        });
+                        ctx.fillStyle = 'white';
+                        ctx.font = '28px Arial Bold';
+                        // write node text in white
+                        ctx.fillText(nodeName, scaledX, scaledY, 40);
+                        
                     });
 
                     // Draw the cars as squares in the canvas
@@ -553,12 +557,12 @@
                         ctx.fillStyle = json[2][carName] ? 'red' : 'green';
 
                         // Draw the node circle
-                        ctx.fillRect(scaledX - 10, scaledY - 10, 20, 20);
+                        ctx.fillRect(scaledX - 20, scaledY - 20, 40, 40);
                         ctx.stroke();
 
                         ctx.fillStyle = 'black';
-                        ctx.font = '12px Arial';
-                        ctx.fillText(carName, scaledX, scaledY);
+                        ctx.font = '24px Arial Bold';
+                        ctx.fillText(carName, scaledX-5, scaledY);
                     });
 
                     // draw the square for the ambulance
@@ -566,10 +570,10 @@
                     const scaledX = padding + (y - minY) * scaleX;
                     const scaledY = padding + (maxX - x) * scaleY;
                     ctx.fillStyle = 'yellow';
-                    ctx.fillRect(scaledX - 10, scaledY - 10, 20, 20);
+                    ctx.fillRect(scaledX - 20, scaledY - 20, 40, 40);
                     ctx.stroke();
                     ctx.fillStyle = 'black';
-                    ctx.font = '12px Arial';
+                    ctx.font = '24px Arial Bold';
                     ctx.fillText('1', scaledX, scaledY);
 
                     // Draw the cars as squares in the canvas
@@ -591,7 +595,7 @@
 
                         // Draw the node circle
                         ctx.beginPath();
-                        ctx.arc(scaledX, scaledY + 15, 5, 0, 2 * Math.PI);
+                        ctx.arc(scaledX-10, scaledY + 10, 8, 0, 2 * Math.PI);
                         ctx.fill();
                         ctx.stroke();
                     });

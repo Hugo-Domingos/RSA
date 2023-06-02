@@ -94,7 +94,6 @@ class OBUNormal:
             states = message['fields']['spat']['intersections'][0]['states']
 
             for state in states:
-                print (state['signalGroup'])
                 if state['signalGroup'] == edges[self.current_edge]['attr']['signalGroup']:
                     if state['state-time-speed'][0]['eventState'] == 2:
                         self.signal_group = state['state-time-speed'][0]['eventState']

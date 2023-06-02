@@ -150,7 +150,7 @@ class RSU:
         nodes = (self.graph.nodes())
         for node in nodes:
             if coords[0] == (nodes[node]['attr']['latitude'],nodes[node]['attr']['longitude']):
-                print("AMBULANCE IS IN NODE"+str(node))
+                # print("AMBULANCE IS IN NODE"+str(node))
                 pass
         # print(edges)
         ##get the edge with the ambulance
@@ -162,7 +162,7 @@ class RSU:
 
 
             if coords[0] in edges_coords:
-                print("AMBULANCE IS IN EDGE"+str(edge))
+                # print("AMBULANCE IS IN EDGE"+str(edge))
                 self.ambulance_edge=edge
                 # return edge
 
@@ -198,8 +198,6 @@ class RSU:
                         egdes.append(self.graph.edges[edge]['attr']['signalGroup'])
                         states.append(2)
 
-                print("states",states)
-                print("egdes",egdes)
                 spatem_message = self.generate_spatem(1,states,egdes)
                 self.send_message('vanetza/in/spatem', spatem_message)
 

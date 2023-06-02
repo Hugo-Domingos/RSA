@@ -104,7 +104,6 @@ class OBUEmergency:
         number_of_cars_on_lane = {}
         for lane_id in self.cars_on_lane:
             number_of_cars_on_lane[lane_id] = len(self.cars_on_lane[lane_id])
-        print(f'number_of_cars_on_lane: {number_of_cars_on_lane}')
 
         # compute the total distance on each path from all_paths and the total number of cars on each path
         total_distance = {}
@@ -115,8 +114,6 @@ class OBUEmergency:
             for i in range(len(path) - 1):
                 total_distance[str(path)] += self.graph.get_edge_data(path[i], path[i + 1])['attr']['distance']
                 total_cars[str(path)] += number_of_cars_on_lane[self.graph.get_edge_data(path[i], path[i + 1])['attr']['id']]
-        print(f'total_distance: {total_distance}')
-        print(f'total_cars: {total_cars}')
 
         # give a punctuation from 0 to 1 on the distance on each path
         total_distance_punctuation = {}
@@ -135,11 +132,9 @@ class OBUEmergency:
         hybrid_punctuation = {}
         for path in total_distance_punctuation:
             hybrid_punctuation[path] = total_distance_punctuation[path] * 0.3 + total_cars_punctuation[path] * 0.7
-        print(f'hybrid_punctuation: {hybrid_punctuation}')
         # get the path with the highest hybrid punctuation
         best_path_key_str = max(hybrid_punctuation, key=hybrid_punctuation.get)
         self.best_path = json.loads(best_path_key_str)
-        print(f'best_path: {self.best_path}')
         return self.best_path[1]
 
     def best_successor_congestion(self):

@@ -12,7 +12,6 @@ import networkx as nx
 class Simulation:
 
     def __init__(self, situation=0):
-        print(f'Situation: {situation}')
         self.finished = True
         self.normal_obus = []
         self.special_obus = []
@@ -66,7 +65,6 @@ class Simulation:
         self.situation = situation
 
     def set_situation(self, situation):
-        print(f'Situation: {situation}')
         self.situation = situation
 
     def at_node(self, current_coords):
@@ -205,7 +203,9 @@ class Simulation:
                     'hybrid_punctuation' : hybrid_punctuation[path]
                 }
 
-        connections = self.rsus[0].get_connected()
+        for rsu in self.rsus:
+            if rsu.id == 1:
+                connections = rsu.get_connected()
         return status, connections, pulled_over, self.finished, self.normal_obu_coordinates ,signal_group, paths_table, best_path, self.graph_representation()
     
     def graph_representation(self):
@@ -218,7 +218,6 @@ class Simulation:
         # print(self.graph.nodes)
         # print(nx.get_node_attributes(self.graph, 'attr'))
 
-        print(graph_representation)
         return graph_representation
 
     def kill_simulation(self):

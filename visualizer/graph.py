@@ -12,9 +12,7 @@ class Road:
     def __init__(self, id, start, end, list_of_coordinates):
         self.id = id
         self.start = start
-        print(self.start)
         self.end = end
-        print(self.end)
         self.list_of_coordinates = list_of_coordinates
 
     def get_next_coordinates(self, current_coords):
