@@ -179,7 +179,7 @@ class RSU:
                 self.received_obu_coordinates[message['stationID']]['coords'] = [message['latitude'], message['longitude']]
             
         if msg_type == 'vanetza/out/denm':
-            if message['fields']['denm']['situation']['eventType']['causeCode'] == 15:
+            if message['fields']['denm']['situation']['eventType']['causeCode'] == 95:
                 #get the edge of the ambulance
                 self.get_ambulance_edge([(message['fields']['denm']['management']['eventPosition']['latitude'], message['fields']['denm']['management']['eventPosition']['longitude'])])
                 #send spatem message to the obus
