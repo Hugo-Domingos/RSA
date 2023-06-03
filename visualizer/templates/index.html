@@ -79,7 +79,7 @@
             text-align: center;
             border: 1px solid black;
         }
-        
+
         #pulled-over-table th {
             border: 1px solid black;
             background-color: #57b0d3;
@@ -448,12 +448,11 @@
                     // $('#best-path-placeholder').html(bestPath.join(' -> '));
 
                     car_1.setLatLng([json[0]['obu1'].latitude, json[0]['obu1'].longitude]).update();
-                    console.log(json[4]);
-                    car_2.setLatLng(json[4][0]).update();
-                    car_3.setLatLng(json[4][1]).update();
-                    car_4.setLatLng(json[4][2]).update();
-                    car_5.setLatLng(json[4][3]).update();
-                    car_6.setLatLng(json[4][4]).update();
+                    car_2.setLatLng([json[0]['obu2'].latitude, json[0]['obu2'].longitude]).update();
+                    car_3.setLatLng([json[0]['obu3'].latitude, json[0]['obu3'].longitude]).update();
+                    car_4.setLatLng([json[0]['obu4'].latitude, json[0]['obu4'].longitude]).update();
+                    car_5.setLatLng([json[0]['obu5'].latitude, json[0]['obu5'].longitude]).update();
+                    car_6.setLatLng([json[0]['obu6'].latitude, json[0]['obu6'].longitude]).update();
 
                     ////////////////////////////////////////////////////////////////////////////////////
 
@@ -496,29 +495,29 @@
                     const scaleX = canvasWidth / (maxY - minY);
                     const scaleY = canvasHeight / (maxX - minX);
 
-                    
+
                     // Draw the graph nodes and edges
                     Object.entries(graphData).forEach(([nodeName, node]) => {
                         const [x, y] = node.coords;
 
-                        
+
                         // Scale the coordinates to fit within the canvas with padding
                         // const scaledX = padding + (x - minX) * scaleX;
                         // const scaledY = padding + (y - minY) * scaleY;
-                        
+
                         const scaledX = padding + (y - minY) * scaleX;
                         const scaledY = padding + (maxX - x) * scaleY;
-                        
+
                         // Draw the edges in white
                         Object.values(node.connections).forEach(connection => {
                             const [cx, cy] = connection;
-    
+
                             // Scale the coordinates of the connection with padding
                             // const scaledCX = padding + (cx - minX) * scaleX;
                             // const scaledCY = padding + (cy - minY) * scaleY;
                             const scaledCX = padding + (cy - minY) * scaleX;
                             const scaledCY = padding + (maxX - cx) * scaleY;
-    
+
                             ctx.beginPath();
                             ctx.moveTo(scaledX, scaledY);
                             ctx.lineTo(scaledCX, scaledCY);
@@ -539,31 +538,35 @@
                         ctx.font = '28px Arial Bold';
                         // write node text in white
                         ctx.fillText(nodeName, scaledX, scaledY, 40);
-                        
+
                     });
 
                     // Draw the cars as squares in the canvas
-                    Object.entries(json[4]).forEach(([carName, car]) => {
-                        const [x, y] = car;
+                    Object.entries(json[0]).forEach(([carName, car]) => {
+                        console.log(carName, car);
+                        if (carName != 'obu1') {
 
-                        carName = parseInt(carName) + 6;
-                        // Scale the coordinates to fit within the canvas with padding
-                        // const scaledX = padding + (x - minX) * scaleX;
-                        // const scaledY = padding + (y - minY) * scaleY;
-                        const scaledX = padding + (y - minY) * scaleX;
-                        const scaledY = padding + (maxX - x) * scaleY;
+                            const [x, y] = [car.latitude, car.longitude];
 
-                        // Set the fill color based on whether the car on pulled over is true or not
-                        // ctx.fillStyle = carName == 6 ? 'red' : 'green';
-                        ctx.fillStyle = json[2][carName] ? 'red' : 'green';
+                            carName = parseInt(carName) + 6;
+                            // Scale the coordinates to fit within the canvas with padding
+                            // const scaledX = padding + (x - minX) * scaleX;
+                            // const scaledY = padding + (y - minY) * scaleY;
+                            const scaledX = padding + (y - minY) * scaleX;
+                            const scaledY = padding + (maxX - x) * scaleY;
 
-                        // Draw the node circle
-                        ctx.fillRect(scaledX - 20, scaledY - 20, 40, 40);
-                        ctx.stroke();
+                            // Set the fill color based on whether the car on pulled over is true or not
+                            // ctx.fillStyle = carName == 6 ? 'red' : 'green';
+                            ctx.fillStyle = json[2][car.id] ? 'red' : 'green';
 
-                        ctx.fillStyle = 'black';
-                        ctx.font = '24px Arial Bold';
-                        ctx.fillText(carName, scaledX-5, scaledY);
+                            // Draw the node circle
+                            ctx.fillRect(scaledX - 20, scaledY - 20, 40, 40);
+                            ctx.stroke();
+
+                            ctx.fillStyle = 'black';
+                            ctx.font = '24px Arial Bold';
+                            ctx.fillText(car.id, scaledX - 5, scaledY);
+                        }
                     });
 
                     // draw the square for the ambulance
@@ -578,27 +581,26 @@
                     ctx.fillText('1', scaledX, scaledY);
 
                     // Draw the cars as squares in the canvas
-                    Object.entries(json[4]).forEach(([carName, car]) => {
-                        const [x, y] = car;
-                        console.log(carName);
-                        console.log(car);
-                        console.log(json[5]);
-                        carName = parseInt(carName) + 6;
-                        // Scale the coordinates to fit within the canvas with padding
-                        // const scaledX = padding + (x - minX) * scaleX;
-                        // const scaledY = padding + (y - minY) * scaleY;
-                        const scaledX = padding + (y - minY) * scaleX;
-                        const scaledY = padding + (maxX - x) * scaleY;
-
-
-                        // Set the fill color based on whether the car signal_group is 2 or 5
-                        ctx.fillStyle = json[5][carName] == 2 ? 'red' : 'green';
-
-                        // Draw the node circle
-                        ctx.beginPath();
-                        ctx.arc(scaledX-10, scaledY + 10, 8, 0, 2 * Math.PI);
-                        ctx.fill();
-                        ctx.stroke();
+                    Object.entries(json[0]).forEach(([carName, car]) => {
+                        if (carName != 'obu1') {
+                            const [x, y] = [car.latitude, car.longitude];
+                            car_id = parseInt(car.id) + 6;
+                            // Scale the coordinates to fit within the canvas with padding
+                            // const scaledX = padding + (x - minX) * scaleX;
+                            // const scaledY = padding + (y - minY) * scaleY;
+                            const scaledX = padding + (y - minY) * scaleX;
+                            const scaledY = padding + (maxX - x) * scaleY;
+    
+    
+                            // Set the fill color based on whether the car signal_group is 2 or 5
+                            ctx.fillStyle = json[5][car_id] == 2 ? 'red' : 'green';
+    
+                            // Draw the node circle
+                            ctx.beginPath();
+                            ctx.arc(scaledX - 10, scaledY + 10, 8, 0, 2 * Math.PI);
+                            ctx.fill();
+                            ctx.stroke();
+                        }
                     });
 
                 });

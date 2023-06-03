@@ -22,16 +22,16 @@ class Simulation:
 
         self.graph = nx.DiGraph()
 
-        self.graph.add_node(0, attr={'latitude': 40.630573087421965, 'longitude': -8.654125928878786, 'connections': {1: (40.63162344496743, -8.654608726501467), 6: (40.6300466215235, -8.654799637383748), 9: (40.631306540191524, -8.652005912660032)}})
-        self.graph.add_node(1, attr={'latitude': 40.63162344496743, 'longitude': -8.654608726501467, 'connections': {2: (40.63327629974076, -8.655552864074709), 3: (40.63222490781146, -8.65287555130587)}})
-        self.graph.add_node(2, attr={'latitude': 40.63327629974076, 'longitude': -8.655552864074709, 'connections': {5: (40.63349808896788,-8.654745741573835)}})
-        self.graph.add_node(3, attr={'latitude': 40.63222490781146, 'longitude': -8.65287555130587, 'connections': {1: (40.63162344496743, -8.654608726501467), 4: (40.63367391921257, -8.653817896059198)}})
-        self.graph.add_node(4, attr={'latitude': 40.63367391921257, 'longitude': -8.653817896059198, 'connections': {5: (40.63349808896788,-8.654745741573835)}})
-        self.graph.add_node(5, attr={'latitude': 40.63349808896788, 'longitude': -8.654745741573835, 'connections': {}})
-        self.graph.add_node(6, attr={'latitude': 40.6300466215235, 'longitude': -8.654799637383748, 'connections': {7: (40.63187020342297,-8.657101544495264)}})
-        self.graph.add_node(7, attr={'latitude': 40.63187020342297, 'longitude': -8.657101544495264, 'connections': {2: (40.63327629974076, -8.655552864074709)}})
+        self.graph.add_node(0, attr={'latitude': 40.630573087421965, 'longitude': -8.654125928878786, 'connections': {1: (40.63162344496743, -8.654608726501467), 6: (40.6300466215235, -8.654799637383748), 9: (40.631306540191524, -8.652005912660032), 8: (40.62975477416346, -8.653675317764284)}})
+        self.graph.add_node(1, attr={'latitude': 40.63162344496743, 'longitude': -8.654608726501467, 'connections': {2: (40.63327629974076, -8.655552864074709), 3: (40.63222490781146, -8.65287555130587), 0: (40.630573087421965, -8.654125928878786)}})
+        self.graph.add_node(2, attr={'latitude': 40.63327629974076, 'longitude': -8.655552864074709, 'connections': {5: (40.63349808896788,-8.654745741573835), 1: (40.63162344496743, -8.654608726501467), 7: (40.63187020342297,-8.657101544495264)}})
+        self.graph.add_node(3, attr={'latitude': 40.63222490781146, 'longitude': -8.65287555130587, 'connections': {1: (40.63162344496743, -8.654608726501467), 4: (40.63367391921257, -8.653817896059198), 9: (40.631306540191524, -8.652005912660032)}})
+        self.graph.add_node(4, attr={'latitude': 40.63367391921257, 'longitude': -8.653817896059198, 'connections': {5: (40.63349808896788,-8.654745741573835), 3: (40.63222490781146, -8.65287555130587)}})
+        self.graph.add_node(5, attr={'latitude': 40.63349808896788, 'longitude': -8.654745741573835, 'connections': {2: (40.63327629974076, -8.655552864074709), 4: (40.63367391921257, -8.653817896059198)}})
+        self.graph.add_node(6, attr={'latitude': 40.6300466215235, 'longitude': -8.654799637383748, 'connections': {7: (40.63187020342297,-8.657101544495264), 0: (40.630573087421965, -8.654125928878786)}})
+        self.graph.add_node(7, attr={'latitude': 40.63187020342297, 'longitude': -8.657101544495264, 'connections': {2: (40.63327629974076, -8.655552864074709), 6: (40.6300466215235, -8.654799637383748)}})
         self.graph.add_node(8, attr={'latitude': 40.62975477416346, 'longitude': -8.653675317764284, 'connections': {0: (40.630573087421965, -8.654125928878786)}})
-        self.graph.add_node(9, attr={'latitude': 40.631306540191524, 'longitude': -8.652005912660032, 'connections': {3: (40.63222490781146, -8.65287555130587)}})
+        self.graph.add_node(9, attr={'latitude': 40.631306540191524, 'longitude': -8.652005912660032, 'connections': {3: (40.63222490781146, -8.65287555130587), 0: (40.630573087421965, -8.654125928878786)}})
 
         road1_coordinates = read_csv('coordinates/street1.csv')
         road2_coordinates = read_csv('coordinates/street2.csv')
@@ -46,21 +46,43 @@ class Simulation:
         road11_coordinates = read_csv('coordinates/street11.csv')
         road12_coordinates = read_csv('coordinates/street12.csv')
         road13_coordinates = read_csv('coordinates/street13.csv')
+        road14_coordinates = read_csv('coordinates/street14.csv')
+        road15_coordinates = read_csv('coordinates/street15.csv')
+        road16_coordinates = read_csv('coordinates/street16.csv')
+        road17_coordinates = read_csv('coordinates/street17.csv')
+        road18_coordinates = read_csv('coordinates/street18.csv')
+        road19_coordinates = read_csv('coordinates/street19.csv')
+        road20_coordinates = read_csv('coordinates/street20.csv')
+        road21_coordinates = read_csv('coordinates/street21.csv')
+        road22_coordinates = read_csv('coordinates/street22.csv')
+        road23_coordinates = read_csv('coordinates/street23.csv')
+        road24_coordinates = read_csv('coordinates/street24.csv')
 
         self.graph.add_edge(0, 1, attr={'list_of_coordinates':road1_coordinates, 'distance': 120, 'id': 1,'signalGroup': 1})
+        self.graph.add_edge(1, 0, attr={'list_of_coordinates':road16_coordinates, 'distance': 120, 'id': 16,'signalGroup': 1})
         self.graph.add_edge(1, 2, attr={'list_of_coordinates':road2_coordinates, 'distance': 200, 'id': 2 ,'signalGroup': 2})
-        self.graph.add_edge(1, 3, attr={'list_of_coordinates':road5_coordinates, 'distance': 160, 'id': 5,'signalGroup': 3,})
+        self.graph.add_edge(2, 1, attr={'list_of_coordinates':road18_coordinates, 'distance': 200, 'id': 18 ,'signalGroup': 2})
+        self.graph.add_edge(1, 3, attr={'list_of_coordinates':road5_coordinates, 'distance': 160, 'id': 5,'signalGroup': 3})
         self.graph.add_edge(3, 1, attr={'list_of_coordinates':road13_coordinates, 'distance': 160, 'id': 13,'signalGroup': 3})
         self.graph.add_edge(3, 4, attr={'list_of_coordinates':road4_coordinates, 'distance': 180, 'id': 4,'signalGroup': 4})
+        self.graph.add_edge(4, 3, attr={'list_of_coordinates':road24_coordinates, 'distance': 180, 'id': 24,'signalGroup': 4})
         self.graph.add_edge(2, 5, attr={'list_of_coordinates':road3_coordinates, 'distance': 80, 'id': 3,'signalGroup': 5})
+        self.graph.add_edge(5, 2, attr={'list_of_coordinates':road22_coordinates, 'distance': 80, 'id': 22,'signalGroup': 5})
         self.graph.add_edge(4, 5, attr={'list_of_coordinates':road6_coordinates, 'distance': 80, 'id': 6,'signalGroup': 12})
+        self.graph.add_edge(5, 4, attr={'list_of_coordinates':road23_coordinates, 'distance': 80, 'id': 23,'signalGroup': 12})
 
         self.graph.add_edge(0, 6, attr={'list_of_coordinates':road7_coordinates, 'distance': 80, 'id': 7,'signalGroup': 6})
+        self.graph.add_edge(6, 0, attr={'list_of_coordinates':road19_coordinates, 'distance': 80, 'id': 19,'signalGroup': 6})
         self.graph.add_edge(6, 7, attr={'list_of_coordinates':road8_coordinates, 'distance': 270, 'id': 8,'signalGroup': 7})
+        self.graph.add_edge(7, 6, attr={'list_of_coordinates':road20_coordinates, 'distance': 270, 'id': 20,'signalGroup': 7})
         self.graph.add_edge(7, 2, attr={'list_of_coordinates':road9_coordinates, 'distance': 180, 'id': 9,'signalGroup': 8})
+        self.graph.add_edge(2, 7, attr={'list_of_coordinates':road21_coordinates, 'distance': 180, 'id': 21,'signalGroup': 8})
         self.graph.add_edge(8, 0, attr={'list_of_coordinates':road10_coordinates, 'distance': 100, 'id': 10,'signalGroup': 9})
+        self.graph.add_edge(0, 8, attr={'list_of_coordinates':road14_coordinates, 'distance': 100, 'id': 14,'signalGroup': 9})
         self.graph.add_edge(0, 9, attr={'list_of_coordinates':road11_coordinates, 'distance': 180, 'id': 11,'signalGroup': 10})
+        self.graph.add_edge(9, 0, attr={'list_of_coordinates':road15_coordinates, 'distance': 180, 'id': 15,'signalGroup': 10})
         self.graph.add_edge(9, 3, attr={'list_of_coordinates':road12_coordinates, 'distance': 120, 'id': 12,'signalGroup': 11})
+        self.graph.add_edge(3, 9, attr={'list_of_coordinates':road17_coordinates, 'distance': 120, 'id': 17,'signalGroup': 11})
 
         self.situation = situation
 
@@ -185,13 +207,14 @@ class Simulation:
         best_path = {}
 
         for obu in self.normal_obus:
-            status[obu.name] = {'latitude': obu.coords[0], 'longitude': obu.coords[1]}
+            # print(f"OBU {obu.id} -> {obu.coords}")
+            status[obu.name] = {'latitude': obu.coords[0], 'longitude': obu.coords[1], 'id': obu.id}
             pulled_over[obu.id] = obu.get_pulled_over()
             signal_group[obu.id] = obu.get_signal_group()
             # print(f"OBU {obu.id} -> {obu.get_signal_group()}")
 
         for obu in self.special_obus:
-            status[obu.name] = {'latitude': obu.coords[0], 'longitude': obu.coords[1]}
+            status[obu.name] = {'latitude': obu.coords[0], 'longitude': obu.coords[1], 'id': obu.id}
             total_distance = obu.get_total_distance()
             total_cars = obu.get_total_cars()
             hybrid_punctuation = obu.get_hybrid_punctuation()

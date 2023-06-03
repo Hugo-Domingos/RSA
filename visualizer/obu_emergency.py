@@ -81,7 +81,7 @@ class OBUEmergency:
         return False
 
     def change_edge(self, type_of_search):
-        if len(list(self.graph.successors(self.current_edge[1]))) == 0:
+        if len(list(self.graph.successors(self.current_edge[1]))) == 0 or self.current_edge[1] == 5:
             self.finished = True
             return
         if type_of_search == 'local':
@@ -104,6 +104,7 @@ class OBUEmergency:
         number_of_cars_on_lane = {}
         for lane_id in self.cars_on_lane:
             number_of_cars_on_lane[lane_id] = len(self.cars_on_lane[lane_id])
+        print(f"number_of_cars_on_lane: {number_of_cars_on_lane}")
 
         # compute the total distance on each path from all_paths and the total number of cars on each path
         total_distance = {}

@@ -197,8 +197,6 @@ class RSU:
                         # print("edge",edge)
                         egdes.append(self.graph.edges[edge]['attr']['signalGroup'])
                         states.append(2)
-                print("edges",egdes)
-                print("states",states)
 
                 spatem_message = self.generate_spatem(1,states,egdes)
                 self.send_message('vanetza/in/spatem', spatem_message)
