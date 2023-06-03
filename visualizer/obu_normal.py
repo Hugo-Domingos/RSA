@@ -65,8 +65,10 @@ class OBUNormal:
 
             # if self.last_received_denm is not None and time.time() - self.last_received_denm > 3:
             self.pulled_over = False
-            if self.last_received_spatem is not None and time.time() - self.last_received_spatem > 3:
-                self.signal_group = 5
+            while self.last_received_spatem is not None and time.time() - self.last_received_spatem < 3:
+                time.sleep(0.2)
+            
+            self.signal_group = 5   
             # if self.time != 0 and self.time==self.endtime:
             #     self.signal_group = 5
             
@@ -130,8 +132,6 @@ class OBUNormal:
                         # self.endtime=state['state-time-speed'][0]['timing']['minEndTime']
                         # self.time=time.time()
                         self.last_received_spatem = message['timestamp']
-                    elif state['state-time-speed'][0]['eventState'] == 5:
-                        self.signal_group = state['state-time-speed'][0]['eventState']
 
                         # print("OBU" + str(self.current_edge) + " -> VERDE")              
          

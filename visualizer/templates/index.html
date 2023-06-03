@@ -543,7 +543,7 @@
 
                     // Draw the cars as squares in the canvas
                     Object.entries(json[0]).forEach(([carName, car]) => {
-                        console.log(carName, car);
+                        // console.log(carName, car);
                         if (carName != 'obu1') {
 
                             const [x, y] = [car.latitude, car.longitude];
@@ -584,14 +584,13 @@
                     Object.entries(json[0]).forEach(([carName, car]) => {
                         if (carName != 'obu1') {
                             const [x, y] = [car.latitude, car.longitude];
-                            car_id = parseInt(car.id) + 6;
+                            car_id =car.id;
                             // Scale the coordinates to fit within the canvas with padding
                             // const scaledX = padding + (x - minX) * scaleX;
                             // const scaledY = padding + (y - minY) * scaleY;
                             const scaledX = padding + (y - minY) * scaleX;
                             const scaledY = padding + (maxX - x) * scaleY;
-    
-    
+                            // console.log(json[5][car_id]);
                             // Set the fill color based on whether the car signal_group is 2 or 5
                             ctx.fillStyle = json[5][car_id] == 2 ? 'red' : 'green';
     
