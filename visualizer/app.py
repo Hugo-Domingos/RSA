@@ -17,7 +17,7 @@ s = Simulation()
 
 @app.route('/')
 def index():
-    return render_template('index.html', refresh_rate=1000)
+    return render_template('index.html', refresh_rate=100)
 
 @app.route('/state')
 def get_state():

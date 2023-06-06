@@ -146,25 +146,26 @@ class RSU:
         ##return the edge id
         ##get the closest node to the ambulance
         ##get the edges connected to the node
-        edges = (self.graph.edges())
-        nodes = (self.graph.nodes())
-        for node in nodes:
-            if coords[0] == (nodes[node]['attr']['latitude'],nodes[node]['attr']['longitude']):
-                # print("AMBULANCE IS IN NODE"+str(node))
-                pass
-        # print(edges)
-        ##get the edge with the ambulance
-        for edge in edges:
-            edges_coords =self.convert_list_of_coordinates_to_list_of_coordinates_with_7_decimal_places(self.graph.edges[edge]['attr']['list_of_coordinates'])
-            # print("ambulance coords",coords)
-            # print("edges coords",edges_coords)
-            #check if its not in a intersection point
+        # edges = (self.graph.edges())
+        # nodes = (self.graph.nodes())
+        # for node in nodes:
+        #     if coords[0] == (nodes[node]['attr']['latitude'],nodes[node]['attr']['longitude']):
+        #         # print("AMBULANCE IS IN NODE"+str(node))
+        #         pass
+        # # print(edges)
+        # ##get the edge with the ambulance
+        # for edge in edges:
+        #     edges_coords =self.convert_list_of_coordinates_to_list_of_coordinates_with_7_decimal_places(self.graph.edges[edge]['attr']['list_of_coordinates'])
+        #     # print("ambulance coords",coords)
+        #     # print("edges coords",edges_coords)
+        #     #check if its not in a intersection point
 
 
-            if coords[0] in edges_coords:
-                # print("AMBULANCE IS IN EDGE"+str(edge))
-                self.ambulance_edge=edge
-                # return edge
+        #     if coords[0] in edges_coords:
+        #         # print("AMBULANCE IS IN EDGE"+str(edge))
+        #         self.ambulance_edge=edge
+        #         # return edge
+        self.ambulance_edge = self.special_vehicle.get_current_edge()
 
 
     def on_message(self, client, userdata, msg):
@@ -193,10 +194,11 @@ class RSU:
                 states=[]
                 states.append(5)
                 for edge in graph_edges:
-                    if (edge[0] == self.ambulance_edge[1] or edge[1] == self.ambulance_edge[1]) and self.graph.edges[edge]['attr']['signalGroup'] not in egdes:
+                    if (edge[1] == self.ambulance_edge[1]) and self.graph.edges[edge]['attr']['signalGroup'] not in egdes:
                         # print("edge",edge)
                         egdes.append(self.graph.edges[edge]['attr']['signalGroup'])
                         states.append(2)
+                    
 
                 spatem_message = self.generate_spatem(1,states,egdes)
                 self.send_message('vanetza/in/spatem', spatem_message)

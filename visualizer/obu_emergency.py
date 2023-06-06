@@ -288,3 +288,6 @@ class OBUEmergency:
     
     def has_finished(self):
         return self.finished
+    
+    def get_current_edge(self):
+        return self.current_edge

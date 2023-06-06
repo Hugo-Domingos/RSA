@@ -52,6 +52,7 @@ class OBUNormal:
         client.loop_start()
         tick_num = 0
         while not self.finished:
+            print(f"OBU[{ self.id }]: {self.current_edge}")
             tick_num += 1
             if self.obu_emergency.has_finished():
                 self.finished = True
@@ -66,7 +67,7 @@ class OBUNormal:
 
             # if self.last_received_denm is not None and time.time() - self.last_received_denm > 3:
             self.pulled_over = False
-            while self.last_received_spatem is not None and time.time() - self.last_received_spatem < 2:
+            while self.last_received_spatem is not None and time.time() - self.last_received_spatem < 3:
                 time.sleep(0.2)
             
             self.signal_group = 5   
