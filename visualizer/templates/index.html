@@ -294,16 +294,52 @@
 
             var car_1 = L.marker([0, 0], { icon: ambulanceIcon }).addTo(mymap);
             car_1.bindPopup("<b>Car 1</b><br>Station Id: 5</br>", { autoClose: false, closeOnClick: false });
+            var circle_1 = L.circle([0, 0], {
+                color: 'blue',
+                fillColor: 'blue',
+                fillOpacity: 0.1,
+                radius: 80
+            }).addTo(mymap);
             var car_2 = L.marker([0, 0], { icon: carIcon }).addTo(mymap);
             car_2.bindPopup("<b>Car 2</b><br>Station Id: 6</br>", { autoClose: false, closeOnClick: false });
+            var circle_2 = L.circle([0, 0], {
+                color: 'blue',
+                fillColor: 'blue',
+                fillOpacity: 0.1,
+                radius: 80
+            }).addTo(mymap);
             var car_3 = L.marker([0, 0], { icon: carIcon }).addTo(mymap);
             car_3.bindPopup("<b>Car 3</b><br>Station Id: 7</br>", { autoClose: false, closeOnClick: false });
+            var circle_3 = L.circle([0, 0], {
+                color: 'blue',
+                fillColor: 'blue',
+                fillOpacity: 0.1,
+                radius: 80
+            }).addTo(mymap);
             var car_4 = L.marker([0, 0], { icon: carIcon }).addTo(mymap);
             car_4.bindPopup("<b>Car 4</b><br>Station Id: 8</br>", { autoClose: false, closeOnClick: false });
+            var circle_4 = L.circle([0, 0], {
+                color: 'blue',
+                fillColor: 'blue',
+                fillOpacity: 0.1,
+                radius: 80
+            }).addTo(mymap);
             var car_5 = L.marker([0, 0], { icon: carIcon }).addTo(mymap);
             car_5.bindPopup("<b>Car 5</b><br>Station Id: 9</br>", { autoClose: false, closeOnClick: false });
+            var circle_5 = L.circle([0, 0], {
+                color: 'blue',
+                fillColor: 'blue',
+                fillOpacity: 0.1,
+                radius: 80
+            }).addTo(mymap);
             var car_6 = L.marker([0, 0], { icon: carIcon }).addTo(mymap);
             car_6.bindPopup("<b>Car 6</b><br>Station Id: 10</br>", { autoClose: false, closeOnClick: false });
+            var circle_6 = L.circle([0, 0], {
+                color: 'blue',
+                fillColor: 'blue',
+                fillOpacity: 0.1,
+                radius: 80
+            }).addTo(mymap);
 
             var simulationRunning = false;
             var updateInterval;
@@ -453,6 +489,12 @@
                     car_4.setLatLng([json[0]['obu4'].latitude, json[0]['obu4'].longitude]).update();
                     car_5.setLatLng([json[0]['obu5'].latitude, json[0]['obu5'].longitude]).update();
                     car_6.setLatLng([json[0]['obu6'].latitude, json[0]['obu6'].longitude]).update();
+                    circle_1.setLatLng([json[0]['obu1'].latitude, json[0]['obu1'].longitude]);
+                    circle_2.setLatLng([json[0]['obu2'].latitude, json[0]['obu2'].longitude]);
+                    circle_3.setLatLng([json[0]['obu3'].latitude, json[0]['obu3'].longitude]);
+                    circle_4.setLatLng([json[0]['obu4'].latitude, json[0]['obu4'].longitude]);
+                    circle_5.setLatLng([json[0]['obu5'].latitude, json[0]['obu5'].longitude]);
+                    circle_6.setLatLng([json[0]['obu6'].latitude, json[0]['obu6'].longitude]);
 
                     ////////////////////////////////////////////////////////////////////////////////////
 

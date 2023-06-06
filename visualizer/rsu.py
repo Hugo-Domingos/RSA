@@ -122,7 +122,7 @@ class RSU:
             cam_message = self.generate_cam()
             self.send_message('vanetza/in/cam', cam_message)
             # print(f'IN -> RSU: {self.name} | MSG: {cam_message}\n')
-            time.sleep(1)
+            time.sleep(0.5)
         
         # end the client
         client.loop_stop()
@@ -356,13 +356,13 @@ class RSU:
             if coord1 != [] and coord2 != []:
                 distance = geopy.distance.distance(coord1, coord2).m
                 # print(f"Distance between {id1} and {id2} is {distance}")
-                if distance < 80 and not self.connected[id1][id2]:
+                if distance < 100 and not self.connected[id1][id2]:
                     # print(f'RSU: {self.name} | OBU: {id1} and OBU: {id2} are in range\n')
                     subprocess.run(f"docker-compose exec {self.received_obu_coordinates[id1]['name']} unblock {self.received_obu_coordinates[id2]['mac']}", shell=True, check=True)
                     self.connected[id1][id2] = True
                     subprocess.run(f"docker-compose exec {self.received_obu_coordinates[id2]['name']} unblock {self.received_obu_coordinates[id1]['mac']}", shell=True, check=True)
                     self.connected[id2][id1] = True
-                elif distance > 80 and self.connected[id1][id2]:
+                elif distance > 100 and self.connected[id1][id2]:
                     # print(f'RSU: {self.name} | OBU: {id1} and OBU: {id2} are not in range\n')
                     subprocess.run(f"docker-compose exec {self.received_obu_coordinates[id1]['name']} block {self.received_obu_coordinates[id2]['mac']}", shell=True, check=True)
                     # print(f"docker-compose exec {self.received_obu_coordinates[id1]['name']} block {self.received_obu_coordinates[id2]['mac']}")

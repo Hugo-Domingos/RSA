@@ -50,8 +50,9 @@ class OBUNormal:
         client.subscribe(topic=[("vanetza/out/cam", 0)])
         client.subscribe(topic=[("vanetza/out/spatem", 0)])
         client.loop_start()
-
+        tick_num = 0
         while not self.finished:
+            tick_num += 1
             if self.obu_emergency.has_finished():
                 self.finished = True
                 break
@@ -60,12 +61,12 @@ class OBUNormal:
             # print(f'IN -> OBU: {self.name} | MSG: {cam_message}\n')
             
             # if the last recevied denm is older than 3 seconds, then the obu is not pulled over
-            while self.last_received_denm is not None and time.time() - self.last_received_denm < 3:
+            while self.last_received_denm is not None and time.time() - self.last_received_denm < 2:
                 time.sleep(0.2)
 
             # if self.last_received_denm is not None and time.time() - self.last_received_denm > 3:
             self.pulled_over = False
-            while self.last_received_spatem is not None and time.time() - self.last_received_spatem < 3:
+            while self.last_received_spatem is not None and time.time() - self.last_received_spatem < 2:
                 time.sleep(0.2)
             
             self.signal_group = 5   
@@ -75,15 +76,15 @@ class OBUNormal:
             # print(f"CURRENT EDGE: {self.current_edge}")
             # # get current edge id from self.graph
             # print(nx.get_edge_attributes(self.graph, 'attr')[self.current_edge]['id'])
-
-            if self.is_on_node():
-                self.change_edge()
-            if self.finished:
-                break
-            self.coords = self.get_next_coords()
+            if tick_num % 2 == 0:
+                if self.is_on_node():
+                    self.change_edge()
+                if self.finished:
+                    break
+                self.coords = self.get_next_coords()
             # print(f"OBU[{ self.id }]: {self.name} | COORDS: {self.coords} | EDGE: {self.current_edge} | SIGNAL GROUP: {self.signal_group} | PULLED OVER: {self.pulled_over}\n")
 
-            time.sleep(2)
+            time.sleep(1)
         
         # end the client
         client.loop_stop()
