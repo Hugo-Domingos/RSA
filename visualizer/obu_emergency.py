@@ -5,7 +5,6 @@ import geopy.distance
 import time
 import cam
 import denm
-from navigation import Navigation
 import math
 import networkx as nx
 import json

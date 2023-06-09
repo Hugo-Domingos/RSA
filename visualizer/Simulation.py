@@ -4,9 +4,7 @@ import threading
 import time
 from obu_emergency import OBUEmergency
 from obu_normal import OBUNormal
-from route import Route
 from rsu import RSU
-from graph import RoadNetwork, csv_to_road, Intersection, read_csv
 import networkx as nx
 
 class Simulation:
@@ -255,6 +253,13 @@ class Simulation:
         # process.wait()
         self.finished = True
     
+def read_csv(filename):
+    res = []
+    with open(filename, 'r') as f:
+        for line in f:
+            aux = line.strip().split(',')
+            res.append([float(aux[0]), float(aux[1])])
+    return res
     
 if __name__ == '__main__':
     s = Simulation()

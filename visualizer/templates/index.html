@@ -286,6 +286,13 @@
 
                 iconSize: [40, 40], // size of the icon
             });
+            var hospitalIcon = L.icon({
+                iconUrl: 'static/hospital.png',
+
+                iconSize: [40, 40], // size of the icon
+            });
+
+            var hospital = L.marker([40.63407143939822, -8.654702198855189], { icon: hospitalIcon }).addTo(mymap);
 
             var rsu_1 = L.marker([40.6334546665471, -8.654870575236478], { icon: antennaIcon }).addTo(mymap);
             var rsu_2 = L.marker([40.632412479977084, -8.65541774587554], { icon: antennaIcon }).addTo(mymap);
@@ -566,9 +573,13 @@
                             ctx.strokeStyle = 'white';
                             ctx.stroke();
                         });
-
+                        
                         // Set the fill color based on whether the node is in the greenNodes array or not
-                        ctx.fillStyle = greenNodes.includes(parseInt(nodeName)) ? 'blue' : 'grey';
+                        if (nodeName == '5') {
+                            ctx.fillStyle = 'black';
+                        } else {
+                            ctx.fillStyle = greenNodes.includes(parseInt(nodeName)) ? 'blue' : 'grey';
+                        }
 
                         // Draw the node circle
                         ctx.beginPath();
