@@ -350,6 +350,7 @@ class RSU:
             }
         }
         '''
+        # measure delay between the call of the docker-compose exec and the change of the iptables
         for pair in pairs:
             id1, id2 = pair
             coord1 = self.received_obu_coordinates[id1]['coords']

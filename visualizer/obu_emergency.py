@@ -46,6 +46,7 @@ class OBUEmergency:
         client.loop_start()
         time.sleep(10)
         self.best_hybrid(5)
+        tick_num = 0
         while not self.finished:
             cam_message = self.generate_cam()
             self.send_message('vanetza/in/cam', cam_message)
@@ -55,13 +56,14 @@ class OBUEmergency:
                 denm_message['management']['stationType'] = 10
                 self.send_message('vanetza/in/denm', denm_message)
                 # print(f'IN DENM -> OBU: {self.name} | MSG: {denm_message}\n')
-            
-            if self.is_on_node():
-                self.change_edge('hybrid')
-            if self.finished:
-                break
-            self.coords = self.get_next_coords()
-            time.sleep(2)
+            tick_num += 1
+            if tick_num % 4 == 0:
+                if self.is_on_node():
+                    self.change_edge('hybrid')
+                if self.finished:
+                    break
+                self.coords = self.get_next_coords()
+            time.sleep(0.5)
         
         # end the client
         client.loop_stop()
