@@ -51,7 +51,7 @@ class OBUNormal:
         client.loop_start()
         tick_num = 0
         while not self.finished:
-            print(f"OBU[{ self.id }]: {self.current_edge}")
+            # print(f"OBU[{ self.id }]: {self.current_edge} with coords {self.coords}")
             tick_num += 1
             if self.obu_emergency.has_finished():
                 self.finished = True

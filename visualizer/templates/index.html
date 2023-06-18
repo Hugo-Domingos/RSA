@@ -589,8 +589,10 @@
 
                         ctx.fillStyle = 'white';
                         ctx.font = '28px Arial Bold';
-                        // write node text in white
-                        ctx.fillText(nodeName, scaledX, scaledY, 40);
+                        if(nodeName == '5'){
+                            ctx.fillText('H', scaledX-10, scaledY-5, 40);
+                        }
+                        ctx.fillText(nodeName, scaledX-8, scaledY+20, 40);
 
                     });
 

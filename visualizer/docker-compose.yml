@@ -17,9 +17,9 @@ services:
         networks:
             vanetzalan0:
                 ipv4_address: 192.168.98.11
-        sysctls:      
-            kernel.msgmax:  65536
-            kernel.msgmnb:  65536
+        sysctls:
+            kernel.msgmax: 65536
+            kernel.msgmnb: 65536
     rsu2:
         hostname: rsu2
         restart: always
@@ -37,9 +37,9 @@ services:
         networks:
             vanetzalan0:
                 ipv4_address: 192.168.98.12
-        sysctls:      
-            kernel.msgmax:  65536
-            kernel.msgmnb:  65536
+        sysctls:
+            kernel.msgmax: 65536
+            kernel.msgmnb: 65536
     rsu3:
         hostname: rsu3
         restart: always
@@ -57,9 +57,9 @@ services:
         networks:
             vanetzalan0:
                 ipv4_address: 192.168.98.13
-        sysctls:      
-            kernel.msgmax:  65536
-            kernel.msgmnb:  65536
+        sysctls:
+            kernel.msgmax: 65536
+            kernel.msgmnb: 65536
     rsu4:
         hostname: rsu4
         restart: always
@@ -77,9 +77,9 @@ services:
         networks:
             vanetzalan0:
                 ipv4_address: 192.168.98.14
-        sysctls:      
-            kernel.msgmax:  65536
-            kernel.msgmnb:  65536
+        sysctls:
+            kernel.msgmax: 65536
+            kernel.msgmnb: 65536
 
     obu1:
         hostname: obu1
@@ -98,10 +98,10 @@ services:
         networks:
             vanetzalan0:
                 ipv4_address: 192.168.98.15
-        sysctls:      
-            kernel.msgmax:  65536
-            kernel.msgmnb:  65536
-            
+        sysctls:
+            kernel.msgmax: 65536
+            kernel.msgmnb: 65536
+
     obu2:
         hostname: obu2
         restart: always
@@ -119,9 +119,9 @@ services:
         networks:
             vanetzalan0:
                 ipv4_address: 192.168.98.16
-        sysctls:      
-            kernel.msgmax:  65536
-            kernel.msgmnb:  65536
+        sysctls:
+            kernel.msgmax: 65536
+            kernel.msgmnb: 65536
 
     obu3:
         hostname: obu3
@@ -140,9 +140,9 @@ services:
         networks:
             vanetzalan0:
                 ipv4_address: 192.168.98.17
-        sysctls:      
-            kernel.msgmax:  65536
-            kernel.msgmnb:  65536
+        sysctls:
+            kernel.msgmax: 65536
+            kernel.msgmnb: 65536
     obu4:
         hostname: obu4
         restart: always
@@ -160,9 +160,9 @@ services:
         networks:
             vanetzalan0:
                 ipv4_address: 192.168.98.18
-        sysctls:      
-            kernel.msgmax:  65536
-            kernel.msgmnb:  65536
+        sysctls:
+            kernel.msgmax: 65536
+            kernel.msgmnb: 65536
     obu5:
         hostname: obu5
         restart: always
@@ -180,9 +180,9 @@ services:
         networks:
             vanetzalan0:
                 ipv4_address: 192.168.98.19
-        sysctls:      
-            kernel.msgmax:  65536
-            kernel.msgmnb:  65536
+        sysctls:
+            kernel.msgmax: 65536
+            kernel.msgmnb: 65536
     obu6:
         hostname: obu6
         restart: always
@@ -200,9 +200,9 @@ services:
         networks:
             vanetzalan0:
                 ipv4_address: 192.168.98.20
-        sysctls:      
-            kernel.msgmax:  65536
-            kernel.msgmnb:  65536
+        sysctls:
+            kernel.msgmax: 65536
+            kernel.msgmnb: 65536
 networks:
-  vanetzalan0:
-    external: true
+    vanetzalan0:
+        external: true

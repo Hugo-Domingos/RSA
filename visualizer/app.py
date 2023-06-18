@@ -3,10 +3,13 @@ import paho.mqtt.client as mqtt
 import threading
 import json
 from flask import request
+import logging
 
 from Simulation import Simulation
 
 app = Flask(__name__)
+log = logging.getLogger('werkzeug')
+log.setLevel(logging.ERROR)
 
 obu1_lat = None
 obu1_lng = None
@@ -42,4 +45,3 @@ def kill_simulation():
 
 if __name__ == '__main__':
     app.run(debug=True, threaded=True)
-

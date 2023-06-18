@@ -44,12 +44,12 @@ class OBUEmergency:
         client.subscribe(topic=[("vanetza/out/denm", 0)])
         client.subscribe(topic=[("vanetza/out/cam", 0)])
         client.loop_start()
-        time.sleep(10)
+        time.sleep(4)
         self.best_hybrid(5)
         tick_num = 0
         while not self.finished:
             cam_message = self.generate_cam()
-            self.send_message('vanetza/in/cam', cam_message)
+            # self.send_message('vanetza/in/cam', cam_message)
             # print(f'IN -> OBU: {self.name} | MSG: {cam_message}\n')
             if self.special_vehicle == 1:
                 denm_message = self.generate_denm()
@@ -60,6 +60,9 @@ class OBUEmergency:
             if tick_num % 4 == 0:
                 if self.is_on_node():
                     self.change_edge('hybrid')
+                    for edge in self.graph.edges():
+                        id = self.graph.get_edge_data(*edge)['attr']['id']
+                        self.cars_on_lane[id] = []
                 if self.finished:
                     break
                 self.coords = self.get_next_coords()
@@ -105,7 +108,8 @@ class OBUEmergency:
         number_of_cars_on_lane = {}
         for lane_id in self.cars_on_lane:
             number_of_cars_on_lane[lane_id] = len(self.cars_on_lane[lane_id])
-        print(f"number_of_cars_on_lane: {number_of_cars_on_lane}")
+        print(f"cars_on_lane: {self.cars_on_lane}")
+        # print(f"number_of_cars_on_lane: {number_of_cars_on_lane}")
 
         # compute the total distance on each path from all_paths and the total number of cars on each path
         total_distance = {}
@@ -177,10 +181,68 @@ class OBUEmergency:
                 # print(f"OUT CAM sender ( {message['stationID']} ) OBU: {self.name} | MSG: {message}\n")
                 cam_latitude = message['latitude']
                 cam_longitude = message['longitude']
-
+                # print(f"AMBULANCE received CAM from OBU[{message['stationID']}] with coords ({cam_latitude}, {cam_longitude} on lane {self.get_lane_from_coords((cam_latitude, cam_longitude))}) and reversed lane {self.get_reverse_lane(self.get_lane_from_coords((cam_latitude, cam_longitude)))}")
                 if self.get_lane_from_coords((cam_latitude, cam_longitude)) is not None:
                     if message['stationID'] not in self.cars_on_lane[self.get_lane_from_coords((cam_latitude, cam_longitude))]:
-                        self.cars_on_lane[self.get_lane_from_coords((cam_latitude, cam_longitude))].append(message['stationID'])
+                        # remove the car from the lane it was on
+                        for lane in self.cars_on_lane:
+                            if message['stationID'] in self.cars_on_lane[lane]:
+                                self.cars_on_lane[lane].remove(message['stationID'])
+                        # add the car to the lane it is on
+                        lane = self.get_lane_from_coords((cam_latitude, cam_longitude))
+                        reverse_lane = self.get_reverse_lane(lane)
+                        self.cars_on_lane[lane].append(message['stationID'])
+                        self.cars_on_lane[reverse_lane].append(message['stationID'])
+
+    def get_reverse_lane(self, lane):
+        if lane == 1:
+            return 16
+        elif lane == 2:
+            return 18
+        elif lane == 3:
+            return 22
+        elif lane == 4:
+            return 24
+        elif lane == 5:
+            return 13
+        elif lane == 6:
+            return 23
+        elif lane == 7:
+            return 19
+        elif lane == 8:
+            return 20
+        elif lane == 9:
+            return 21
+        elif lane == 10:
+            return 14
+        elif lane == 11:
+            return 15
+        elif lane == 12:
+            return 17
+        elif lane == 13:
+            return 5
+        elif lane == 14:
+            return 10
+        elif lane == 15:
+            return 11
+        elif lane == 16:
+            return 1
+        elif lane == 17:
+            return 12
+        elif lane == 18:
+            return 2
+        elif lane == 19:
+            return 7
+        elif lane == 20:
+            return 8
+        elif lane == 21:
+            return 9
+        elif lane == 22:
+            return 3
+        elif lane == 23:
+            return 6
+        elif lane == 24:
+            return 4
 
     def get_lane_from_coords(self, coords):
         for edge in self.graph.edges():
@@ -188,13 +250,13 @@ class OBUEmergency:
             aux = self.convert_list_of_coordinates_to_list_of_coordinates_with_7_decimal_places(self.graph.get_edge_data(*edge)['attr']['list_of_coordinates'])
             if coords in aux:
                 return self.graph.get_edge_data(*edge)['attr']['id']
-            elif [coords[0]+0.0000001, coords[1]] in aux:
+            elif (round(coords[0]+0.0000001, 7), coords[1]) in aux:
                 return self.graph.get_edge_data(*edge)['attr']['id']
-            elif [coords[0]-0.0000001, coords[1]] in aux:
+            elif (round(coords[0]-0.0000001, 7), coords[1]) in aux:
                 return self.graph.get_edge_data(*edge)['attr']['id']
-            elif [coords[0], coords[1]+0.0000001] in aux:
+            elif (coords[0], round(coords[1]+0.0000001, 7)) in aux:
                 return self.graph.get_edge_data(*edge)['attr']['id']
-            elif [coords[0], coords[1]-0.0000001] in aux:
+            elif (coords[0], round(coords[1]-0.0000001, 7)) in aux:
                 return self.graph.get_edge_data(*edge)['attr']['id']
         return None
     
