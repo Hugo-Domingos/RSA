@@ -224,6 +224,9 @@ class Simulation:
                     'total_cars' : total_cars[path],
                     'hybrid_punctuation' : hybrid_punctuation[path]
                 }
+            #order by hybrid_punctuation
+            paths_table = {k: v for k, v in sorted(paths_table.items(), key=lambda item: item[1]['hybrid_punctuation'], reverse=True)}
+            
 
         for rsu in self.rsus:
             if rsu.id == 1:

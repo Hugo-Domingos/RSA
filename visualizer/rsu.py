@@ -140,12 +140,16 @@ class RSU:
             # resend message with data of the cam received
             if self.id == 1 and message['stationID'] in self.received_obu_coordinates.keys():
                 self.received_obu_coordinates[message['stationID']]['coords'] = [message['latitude'], message['longitude']]
-            elif message['stationID'] != self.id and message['stationType'] == 19:
-                resend_cam = self.generate_cam([message['latitude'], message['longitude']], message['stationID'], message['stationType'])
-                # print(f"RESEND CAM -> RSU: {self.name} | stationID: {message['stationID']} | MSG: {message}\n")
-                self.send_message('vanetza/in/cam', resend_cam)
-            # print(f"OUT CAM -> RSU: {self.name} | stationID: {message['stationID']} | MSG: {message}\n")
             
+            if message['stationID'] != self.id and message['stationType'] == 19:
+                cam_message = self.generate_cam([message['latitude'], message['longitude']], message['stationID'], 5)
+                self.send_message('vanetza/in/cam', cam_message)
+
+            #     resend_cam = self.generate_cam([message['latitude'], message['longitude']], message['stationID'], message['stationType'])
+            #     # print(f"RESEND CAM -> RSU: {self.name} | stationID: {message['stationID']} | MSG: {message}\n")
+            #     self.send_message('vanetza/in/cam', resend_cam)
+            # # print(f"OUT CAM -> RSU: {self.name} | stationID: {message['stationID']} | MSG: {message}\n")
+        
         if msg_type == 'vanetza/out/denm':
             if message['fields']['denm']['situation']['eventType']['causeCode'] == 95:
                 #get the edge of the ambulance
@@ -169,6 +173,7 @@ class RSU:
 
                 spatem_message = self.generate_spatem(1,states,egdes)
                 self.send_message('vanetza/in/spatem', spatem_message)
+
 
     def generate_cam(self, coords, station_id, station_type):
         cam_message = cam.CAM(
@@ -221,8 +226,6 @@ class RSU:
         return denm.DENM.to_dict(denm_message)
 
     def send_message(self, topic, message):
-        # if topic == 'vanetza/in/cam':
-        #     print(f"OUT -> RSU: {self.id} | MSG: {message}\n")
         publish.single(topic, json.dumps(message), hostname=self.address)
 
     def set_finished(self, value):

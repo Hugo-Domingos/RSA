@@ -54,7 +54,7 @@ class OBUEmergency:
             if self.special_vehicle == 1:
                 denm_message = self.generate_denm()
                 denm_message['management']['stationType'] = 10
-                self.send_message('vanetza/in/denm', denm_message)
+                # self.send_message('vanetza/in/denm', denm_message)
                 # print(f'IN DENM -> OBU: {self.name} | MSG: {denm_message}\n')
             tick_num += 1
             if tick_num % 4 == 0:
@@ -137,7 +137,7 @@ class OBUEmergency:
         # compute the hybrid punctuation
         hybrid_punctuation = {}
         for path in total_distance_punctuation:
-            hybrid_punctuation[path] = total_distance_punctuation[path] * 0.3 + total_cars_punctuation[path] * 0.7
+            hybrid_punctuation[path] = total_distance_punctuation[path] * 0.4 + total_cars_punctuation[path] * 0.6
         # get the path with the highest hybrid punctuation
         best_path_key_str = max(hybrid_punctuation, key=hybrid_punctuation.get)
         self.best_path = json.loads(best_path_key_str)
