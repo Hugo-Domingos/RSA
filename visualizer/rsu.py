@@ -95,15 +95,6 @@ class RSU:
             10: {'coords': normal_obu_coordinates[4], 'mac': '6e:06:e0:03:00:10', 'name': 'obu6'},
         }
 
-        # # block all comunication between OBUs with docker-compose exec obu_id block mac_address 
-        # for obu_id in self.received_obu_coordinates.keys():
-        #     for obu_id2 in self.received_obu_coordinates.keys():
-        #         if obu_id != obu_id2:
-        #             subprocess.run(['docker-compose', 'exec', f'obu{obu_id}', 'block', self.received_obu_coordinates[obu_id2]['mac']])
-        #             subprocess.run(['docker-compose', 'exec', f'obu{obu_id2}', 'block', self.received_obu_coordinates[obu_id]['mac']])
-        #             print(f'Blocked communication between {self.received_obu_coordinates[obu_id]["name"]} and {self.received_obu_coordinates[obu_id2]["name"]}')
-
-
     def start(self):
         client = mqtt.Client(self.name)
         client.on_message = self.on_message
@@ -137,13 +128,15 @@ class RSU:
         # self.get_ambulance_edge(message['latitude'],message['longitude'])
 
         if msg_type == 'vanetza/out/cam':
-            # resend message with data of the cam received
             if self.id == 1 and message['stationID'] in self.received_obu_coordinates.keys():
                 self.received_obu_coordinates[message['stationID']]['coords'] = [message['latitude'], message['longitude']]
             
+            # resend message with data of the cam received
             if message['stationID'] != self.id and message['stationType'] == 19:
                 cam_message = self.generate_cam([message['latitude'], message['longitude']], message['stationID'], 5)
                 self.send_message('vanetza/in/cam', cam_message)
+                # if message['stationID'] == 10:
+                #     print(f"RESEND CAM -> RSU: {self.id} | stationID: {message['stationID']} | MSG: {message}\n")
 
             #     resend_cam = self.generate_cam([message['latitude'], message['longitude']], message['stationID'], message['stationType'])
             #     # print(f"RESEND CAM -> RSU: {self.name} | stationID: {message['stationID']} | MSG: {message}\n")
@@ -154,10 +147,6 @@ class RSU:
             if message['fields']['denm']['situation']['eventType']['causeCode'] == 95:
                 #get the edge of the ambulance
                 self.get_ambulance_edge([(message['fields']['denm']['management']['eventPosition']['latitude'], message['fields']['denm']['management']['eventPosition']['longitude'])])
-                #send spatem message to the obus
-                #get other edges that goes to the end node of the ambulance edge
-                # print("AMBULANCE IS IN EDGE"+str(self.ambulance_edge))
-                #check the conections of the node of the ambulance edge
                 graph_edges = self.graph.edges()
                 egdes=[]
                 
@@ -170,9 +159,12 @@ class RSU:
                         egdes.append(self.graph.edges[edge]['attr']['signalGroup'])
                         states.append(2)
                     
-
                 spatem_message = self.generate_spatem(1,states,egdes)
                 self.send_message('vanetza/in/spatem', spatem_message)
+                
+                print(f"RSU: {self.name} received DENM from OBU: {message['stationID']} | MSG: {message}\n")
+                #     print(f"RSU: {self.name} sending SPATEM | MSG: {spatem_message}\n")
+
 
 
     def generate_cam(self, coords, station_id, station_type):
@@ -322,7 +314,7 @@ class RSU:
             coord2 = self.received_obu_coordinates[id2]['coords']
             if coord1 != [] and coord2 != []:
                 distance = geopy.distance.distance(coord1, coord2).m
-                # print(f"Distance between {id1} and {id2} is {distance}")
+                # print(f"Distance between {id1} with coords {coord1} and {id2} with coords {coord2} is {distance}")
                 if distance < 100 and not self.connected[id1][id2]:
                     # print(f'RSU: {self.name} | OBU: {id1} and OBU: {id2} are in range\n')
                     subprocess.run(f"docker-compose exec {self.received_obu_coordinates[id1]['name']} unblock {self.received_obu_coordinates[id2]['mac']}", shell=True, check=True)

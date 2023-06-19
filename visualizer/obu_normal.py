@@ -58,24 +58,24 @@ class OBUNormal:
                 break
             cam_message = self.generate_cam()
             self.send_message('vanetza/in/cam', cam_message)
-            # print(f'IN -> OBU: {self.name} | MSG: {cam_message}\n')
+            # if self.id == 10:
+            # print(f'IN CAM -> OBU: {self.id} | MSG: {cam_message}\n')
             
             # if the last recevied denm is older than 3 seconds, then the obu is not pulled over
-            while self.last_received_denm is not None and time.time() - self.last_received_denm < 2:
+            while self.last_received_denm is not None and time.time() - self.last_received_denm < 2 or self.last_received_spatem is not None and time.time() - self.last_received_spatem < 3:
+                cam_message = self.generate_cam()
+                self.send_message('vanetza/in/cam', cam_message)
                 time.sleep(0.2)
+            self.pulled_over = False
 
             # if self.last_received_denm is not None and time.time() - self.last_received_denm > 3:
-            self.pulled_over = False
-            while self.last_received_spatem is not None and time.time() - self.last_received_spatem < 3:
-                time.sleep(0.2)
+            # while self.last_received_spatem is not None and time.time() - self.last_received_spatem < 3:
+            #     cam_message = self.generate_cam()
+            #     self.send_message('vanetza/in/cam', cam_message)
+            #     time.sleep(0.2)
             
             self.signal_group = 5   
-            # if self.time != 0 and self.time==self.endtime:
-            #     self.signal_group = 5
             
-            # print(f"CURRENT EDGE: {self.current_edge}")
-            # # get current edge id from self.graph
-            # print(nx.get_edge_attributes(self.graph, 'attr')[self.current_edge]['id'])
             if tick_num % 2 == 0:
                 if self.is_on_node():
                     self.change_edge()
@@ -84,7 +84,7 @@ class OBUNormal:
                 self.coords = self.get_next_coords()
             # print(f"OBU[{ self.id }]: {self.name} | COORDS: {self.coords} | EDGE: {self.current_edge} | SIGNAL GROUP: {self.signal_group} | PULLED OVER: {self.pulled_over}\n")
 
-            time.sleep(1)
+            time.sleep(0.5)
         
         # end the client
         client.loop_stop()
@@ -116,11 +116,13 @@ class OBUNormal:
         msg_type = msg.topic
 
         if msg_type == 'vanetza/out/denm':
-            # print(f"OUT DENM OBU[{ message['fields']['denm']['management']['actionID']['originatingStationID'] }] -> OBU[{ self.id }]: {self.name}\n")
             self.pulled_over = True
             self.last_received_denm = message['timestamp']
+            print(f"OBU[{ self.id }] received denm | MSG: {message}\n")
 
         if msg_type == 'vanetza/out/spatem':
+            # if self.id == 10:
+            #     print(f"OBU[{ self.id }] received spatem | MSG: {message}\n")
             # print(f"OUT SPATEM OBU[{ message}] -> OBU[{ self.current_edge }]: {self.name}\n")
             edges = self.graph.edges()
             states = message['fields']['spat']['intersections'][0]['states']
@@ -129,20 +131,8 @@ class OBUNormal:
                 if state['signalGroup'] == edges[self.current_edge]['attr']['signalGroup']:
                     if state['state-time-speed'][0]['eventState'] == 2:
                         self.signal_group = state['state-time-speed'][0]['eventState']
-                        # print("OBU" + str(self.current_edge) + " -> ROSSO")
-                        # self.endtime=state['state-time-speed'][0]['timing']['minEndTime']
-                        # self.time=time.time()
-                        self.last_received_spatem = message['timestamp']
 
-                        # print("OBU" + str(self.current_edge) + " -> VERDE")              
-         
-        # if msg_type == 'vanetza/out/cam':
-        #     # resend message with data of the cam received
-        #     if message['fields']['cam']['header']['stationID'] != self.id:
-        #         print(f"OUT CAM OBU[{ message['fields']['cam']['header']['stationID'] }] -> OBU[{ self.id }]: {self.name}\n")
-        #         self.send_message('vanetza/in/cam', message)
-                # self.pulled_over = False
-                
+                        self.last_received_spatem = message['timestamp']                
             
     def get_distance_from_ambulance(self, ambulance_coords):
         return geopy.distance.distance(ambulance_coords, self.coords).meters

@@ -14,7 +14,7 @@ total_cars = {}
 hybrid_punctuation = {}
 
 class OBUEmergency:
-    def __init__(self, name, id, address, mac_address, obu, special_vehicle, coords, current_edge, graph):
+    def __init__(self, name, id, address, mac_address, obu, coords, current_edge, graph):
         self.name = name
         self.id = id
         self.address = address
@@ -29,7 +29,7 @@ class OBUEmergency:
         self.current_edge = current_edge
         self.coords = None
         self.coords = self.get_next_coords()
-        self.special_vehicle = special_vehicle
+        # self.special_vehicle = special_vehicle
         self.best_path = self.best_distance_path(5)
         self.cars_on_lane = {}
         # get lane ids from self.graph and create a dict with lane id as key and an empty list as value
@@ -44,18 +44,18 @@ class OBUEmergency:
         client.subscribe(topic=[("vanetza/out/denm", 0)])
         client.subscribe(topic=[("vanetza/out/cam", 0)])
         client.loop_start()
-        time.sleep(4)
+        time.sleep(10)
         self.best_hybrid(5)
         tick_num = 0
         while not self.finished:
             cam_message = self.generate_cam()
             # self.send_message('vanetza/in/cam', cam_message)
-            # print(f'IN -> OBU: {self.name} | MSG: {cam_message}\n')
-            if self.special_vehicle == 1:
-                denm_message = self.generate_denm()
-                denm_message['management']['stationType'] = 10
-                # self.send_message('vanetza/in/denm', denm_message)
-                # print(f'IN DENM -> OBU: {self.name} | MSG: {denm_message}\n')
+            # print(f'IN CAM -> OBU: {self.id} | MSG: {cam_message}\n')
+            # if self.special_vehicle == 1:
+            denm_message = self.generate_denm()
+            denm_message['management']['stationType'] = 10
+            self.send_message('vanetza/in/denm', denm_message)
+            # print(f'IN DENM -> OBU: {self.name} | MSG: {denm_message}\n')
             tick_num += 1
             if tick_num % 4 == 0:
                 if self.is_on_node():
@@ -108,8 +108,6 @@ class OBUEmergency:
         number_of_cars_on_lane = {}
         for lane_id in self.cars_on_lane:
             number_of_cars_on_lane[lane_id] = len(self.cars_on_lane[lane_id])
-        print(f"cars_on_lane: {self.cars_on_lane}")
-        # print(f"number_of_cars_on_lane: {number_of_cars_on_lane}")
 
         # compute the total distance on each path from all_paths and the total number of cars on each path
         total_distance = {}
@@ -137,7 +135,7 @@ class OBUEmergency:
         # compute the hybrid punctuation
         hybrid_punctuation = {}
         for path in total_distance_punctuation:
-            hybrid_punctuation[path] = total_distance_punctuation[path] * 0.4 + total_cars_punctuation[path] * 0.6
+            hybrid_punctuation[path] = total_distance_punctuation[path] * 0.55 + total_cars_punctuation[path] * 0.45
         # get the path with the highest hybrid punctuation
         best_path_key_str = max(hybrid_punctuation, key=hybrid_punctuation.get)
         self.best_path = json.loads(best_path_key_str)

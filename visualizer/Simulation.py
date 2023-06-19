@@ -99,7 +99,7 @@ class Simulation:
         process.wait()
 
         subprocess.run("docker ps", shell=True, check=True)
-        self.special_obus.append(OBUEmergency('obu1', 5, '192.168.98.15', '6e:06:e0:03:00:05', 'obu1', 1, [40.62975477416346,-8.653675317764284], (8, 0), graph=self.graph))
+        self.special_obus.append(OBUEmergency('obu1', 5, '192.168.98.15', '6e:06:e0:03:00:05', 'obu1', [40.62975477416346,-8.653675317764284], (8, 0), graph=self.graph))
         time.sleep(3)
         if self.situation == 0:
             # get n random coordinates from the random edges of the graph
