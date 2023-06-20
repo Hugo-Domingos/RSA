@@ -49,7 +49,7 @@ class OBUEmergency:
         tick_num = 0
         while not self.finished:
             cam_message = self.generate_cam()
-            # self.send_message('vanetza/in/cam', cam_message)
+            self.send_message('vanetza/in/cam', cam_message)
             # print(f'IN CAM -> OBU: {self.id} | MSG: {cam_message}\n')
             # if self.special_vehicle == 1:
             denm_message = self.generate_denm()

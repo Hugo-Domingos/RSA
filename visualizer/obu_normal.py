@@ -62,17 +62,17 @@ class OBUNormal:
             # print(f'IN CAM -> OBU: {self.id} | MSG: {cam_message}\n')
             
             # if the last recevied denm is older than 3 seconds, then the obu is not pulled over
-            while self.last_received_denm is not None and time.time() - self.last_received_denm < 2 or self.last_received_spatem is not None and time.time() - self.last_received_spatem < 3:
+            while self.last_received_denm is not None and time.time() - self.last_received_denm < 2:
                 cam_message = self.generate_cam()
                 self.send_message('vanetza/in/cam', cam_message)
                 time.sleep(0.2)
             self.pulled_over = False
 
             # if self.last_received_denm is not None and time.time() - self.last_received_denm > 3:
-            # while self.last_received_spatem is not None and time.time() - self.last_received_spatem < 3:
-            #     cam_message = self.generate_cam()
-            #     self.send_message('vanetza/in/cam', cam_message)
-            #     time.sleep(0.2)
+            while self.last_received_spatem is not None and time.time() - self.last_received_spatem < 3:
+                cam_message = self.generate_cam()
+                self.send_message('vanetza/in/cam', cam_message)
+                time.sleep(0.2)
             
             self.signal_group = 5   
             
